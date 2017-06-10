@@ -102,45 +102,70 @@ class Interpreter {
 
   /* Evaluates expression */
   eval() {
+    let parsedOps = [];
+    let lastToken = undefined;
+
     // Get the next token
     this.currentToken = this.getNextToken();
     if (this.currentToken == null) {
       return NaN;
     }
 
-    // Process the token as LHS (if valid number token)
-    const left = this.currentToken;
-    if (!this.eat(INTEGER)) {
-      console.log(`Expected INTEGER got ${this.expr.charAt(this.pos)}`);
-      return NaN;
+    // Read tokens until we reach EOF
+    while (this.currentToken.type !== EOF) {
+      const tok = this.currentToken;
+
+      // If no last token processed or last token was an operator, then
+      // expect and read an integer, otherwise expect and eat an operator
+      if (lastToken === undefined || lastToken.type === PLUS || lastToken.type === MINUS || lastToken.type === MULTIPLY || lastToken.type === DIVIDE) {
+        if (!this.eat(INTEGER)) {
+          console.log(`Expected INTEGER got ${this.expr.charAt(this.pos)}`);
+          return NaN;
+        }
+      } else {
+        if (!this.eat(PLUS) && !this.eat(MINUS) && !this.eat(MULTIPLY) && !this.eat(DIVIDE)) {
+          console.log(`Expected PLUS, MINUS, MULTIPLY, or DIVIDE got ${this.expr.charAt(this.pos)}`);
+          return NaN;
+        }
+      }
+
+      // Token is valid and in order
+      lastToken = tok;
+      parsedOps.push(tok);
     }
 
-    // Process next token as plus operator
-    const op = this.currentToken;
-    if (!this.eat(PLUS) && !this.eat(MINUS) && !this.eat(MULTIPLY) && !this.eat(DIVIDE)) {
-      console.log(`Expected PLUS, MINUS, MULTIPLY, or DIVIDE got ${this.expr.charAt(this.pos)}`);
-      return NaN;
-    }
+    let accum = parsedOps[0].val; // First value is number
+    let op = undefined;
+    let right = undefined;
 
-    // Process next token as RHS
-    const right = this.currentToken;
-    if (!this.eat(INTEGER)) {
-      console.log(`Expected INTEGER got ${this.expr.charAt(this.pos)}`);
-      return NaN;
-    }
+    for (let i = 1; i < parsedOps.length; i += 2) {
+      op = parsedOps[i];
+      right = parsedOps[i + 1];
 
-    switch (op.type) {
-      case PLUS:
-        return left.val + right.val;
-      case MINUS:
-        return left.val - right.val;
-      case MULTIPLY:
-        return left.val * right.val;
-      case DIVIDE:
-        return left.val / right.val;
-      default:
+      if (right === undefined) {
+        console.log(`Missing INTEGER at end of expression`);
         return undefined;
+      }
+
+      switch (op.type) {
+        case PLUS:
+          accum += right.val;
+          break;
+        case MINUS:
+          accum -= right.val;
+          break;
+        case MULTIPLY:
+          accum *= right.val;
+          break;
+        case DIVIDE:
+          accum /= right.val;
+          break;
+        default:
+          return undefined;
+      }
     }
+
+    return accum;
   }
 }
 
