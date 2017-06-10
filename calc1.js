@@ -16,43 +16,67 @@ class Interpreter {
   constructor(expr) {
     this.expr = expr || "";
     this.pos = 0;
+    this.currentCharacter = this.expr.charAt(this.pos);
     this.currentToken = undefined;
   }
 
-  getNextToken() {
-    if (this.pos > this.expr.length - 1) {
-      return new Token(EOF, null);
+  // Get next character
+  advance() {
+    this.pos++;
+    if (this.pos < this.expr.length) {
+      this.currentCharacter = this.expr.charAt(this.pos);
+    } else {
+      this.currentCharacter = undefined;
     }
+  }
 
-    // Scan to next non-whitespace charAt
-    while (this.expr.charAt(this.pos) === ' ') {
-      this.pos++;
+  // Scan to next non-whitespace
+  skipWhitespace() {
+    while (this.currentCharacter === ' ') {
+      this.advance();
     }
+  }
 
-    const currentChar = this.expr.charAt(this.pos);
-    let parsedInt = Number.parseInt(currentChar);
+  // Scan in an entire integer
+  scanInteger() {
+    let finalInt = undefined;
 
-    if (!Number.isNaN(parsedInt)) {
-      let finalInt = 0;
-
-      // If we got a number, consume all chars until we get a non-number,
-      // storing the final integer in finalInt;
+    if (this.currentCharacter) {
+      let parsedInt = Number.parseInt(this.currentCharacter);
+      finalInt = 0;
       while (!Number.isNaN(parsedInt)) {
         finalInt = (finalInt * 10) + parsedInt;
-        this.pos++;
-        parsedInt = Number.parseInt(this.expr.charAt(this.pos));
+        this.advance();
+        parsedInt = Number.parseInt(this.currentCharacter);
+      }
+    }
+
+    return finalInt;
+  }
+
+  getNextToken() {
+    while (this.pos < this.expr.length) {
+
+      if (this.currentCharacter === ' ') {
+        this.skipWhitespace();
       }
 
-      return new Token(INTEGER, finalInt);
-    } else if (currentChar === '+') {
-      this.pos++;
-      return new Token(PLUS, currentChar);
-    } else if (currentChar === '-') {
-      this.pos++;
-      return new Token(MINUS, currentChar);
-    } else {
-      console.error(`Unexpected token at ${this.pos}: ${currentChar}`);
-      return null;
+      if (!Number.isNaN(Number.parseInt(this.currentCharacter))) {
+        return new Token(INTEGER, this.scanInteger());
+      } else if (this.currentCharacter === '+') {
+        this.advance();
+        return new Token(PLUS, '+');
+      } else if (this.currentCharacter === '-') {
+        this.advance();
+        return new Token(MINUS, '-');
+      } else {
+        console.error(`Unexpected token at ${this.pos}: ${this.currentCharacter}`);
+        return null;
+      }
+    }
+
+    if (this.pos > this.expr.length - 1) {
+      return new Token(EOF, null);
     }
   }
 
