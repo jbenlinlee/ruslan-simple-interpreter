@@ -3,6 +3,8 @@ const Readline = require('readline');
 const INTEGER = 'INTEGER';
 const PLUS = 'PLUS';
 const MINUS = 'MINUS';
+const MULTIPLY = 'MULTIPLY';
+const DIVIDE = 'DIVIDE';
 const EOF = 'EOF';
 
 class Token {
@@ -69,6 +71,9 @@ class Interpreter {
       } else if (this.currentCharacter === '-') {
         this.advance();
         return new Token(MINUS, '-');
+      } else if (this.currentCharacter === '*') {
+        this.advance();
+        return new Token(MULTIPLY, '*');
       } else {
         console.error(`Unexpected token at ${this.pos}: ${this.currentCharacter}`);
         return null;
@@ -109,8 +114,8 @@ class Interpreter {
 
     // Process next token as plus operator
     const op = this.currentToken;
-    if (!this.eat(PLUS) && !this.eat(MINUS)) {
-      console.log(`Expected PLUS or MINUS got ${this.expr.charAt(this.pos)}`);
+    if (!this.eat(PLUS) && !this.eat(MINUS) && !this.eat(MULTIPLY)) {
+      console.log(`Expected PLUS, MINUS, or MULTIPLY got ${this.expr.charAt(this.pos)}`);
       return NaN;
     }
 
@@ -121,10 +126,15 @@ class Interpreter {
       return NaN;
     }
 
-    if (op.type === PLUS) {
-      return left.val + right.val;
-    } else if (op.type === MINUS) {
-      return left.val - right.val;
+    switch (op.type) {
+      case PLUS:
+        return left.val + right.val;
+      case MINUS:
+        return left.val - right.val;
+      case MULTIPLY:
+        return left.val * right.val;
+      default:
+        return undefined;
     }
   }
 }
