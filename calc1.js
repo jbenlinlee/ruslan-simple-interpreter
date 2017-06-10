@@ -2,6 +2,7 @@ const Readline = require('readline');
 
 const INTEGER = 'INTEGER';
 const PLUS = 'PLUS';
+const MINUS = 'MINUS';
 const EOF = 'EOF';
 
 class Token {
@@ -46,6 +47,9 @@ class Interpreter {
     } else if (currentChar === '+') {
       this.pos++;
       return new Token(PLUS, currentChar);
+    } else if (currentChar === '-') {
+      this.pos++;
+      return new Token(MINUS, currentChar);
     } else {
       console.error(`Unexpected token at ${this.pos}: ${currentChar}`);
       return null;
@@ -58,7 +62,6 @@ class Interpreter {
       this.currentToken = this.getNextToken();
       return true;
     } else if (this.currentToken) {
-      console.error(`Unexpected token: Expected ${expectedTokenType} got ${this.currentToken.type}`);
       return false;
     } else {
       return false;
@@ -76,22 +79,29 @@ class Interpreter {
     // Process the token as LHS (if valid number token)
     const left = this.currentToken;
     if (!this.eat(INTEGER)) {
+      console.log(`Expected INTEGER got ${this.expr.charAt(this.pos)}`);
       return NaN;
     }
 
     // Process next token as plus operator
     const op = this.currentToken;
-    if (!this.eat(PLUS)) {
+    if (!this.eat(PLUS) && !this.eat(MINUS)) {
+      console.log(`Expected PLUS or MINUS got ${this.expr.charAt(this.pos)}`);
       return NaN;
     }
 
     // Process next token as RHS
     const right = this.currentToken;
     if (!this.eat(INTEGER)) {
+      console.log(`Expected INTEGER got ${this.expr.charAt(this.pos)}`);
       return NaN;
     }
 
-    return left.val + right.val;
+    if (op.type === PLUS) {
+      return left.val + right.val;
+    } else if (op.type === MINUS) {
+      return left.val - right.val;
+    }
   }
 }
 
