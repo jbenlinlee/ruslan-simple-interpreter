@@ -117,14 +117,15 @@ class Interpreter {
     while (this.currentToken.type !== EOF) {
       const tok = this.currentToken;
 
-      // If no last token processed or last token was an operator, then
-      // expect and read an integer, otherwise expect and eat an operator
+      // If no last token processed then
+      // expect and read an integer, otherwise eat an operator
+      // and the following integer
+
       if (lastToken === undefined) {
         if (!this.eat(INTEGER)) {
           console.log(`Expected INTEGER got ${this.expr.charAt(this.pos)}`);
           return undefined;
-        } else if (lastToken === undefined) {
-          // First token
+        } else {
           result = tok.val;
         }
       } else {
@@ -150,6 +151,9 @@ class Interpreter {
               default:
                 return undefined;
             }
+          } else {
+            console.log(`Expected INTEGER got ${numTok.type}`);
+            return undefined;
           }
         }
       }
