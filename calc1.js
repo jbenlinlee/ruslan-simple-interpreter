@@ -24,11 +24,19 @@ class Interpreter {
     }
 
     const currentChar = this.expr.charAt(this.pos);
-    const parsedInt = Number.parseInt(currentChar);
+    let parsedInt = Number.parseInt(currentChar);
 
     if (!Number.isNaN(parsedInt)) {
-      this.pos++;
-      return new Token(INTEGER, parsedInt);
+      let finalInt = 0;
+
+      // If we got a number, consume all chars until we get a non-number
+      while (!Number.isNaN(parsedInt)) {
+        finalInt = (finalInt * 10) + parsedInt;
+        this.pos++;
+        parsedInt = Number.parseInt(this.expr.charAt(this.pos));
+      }
+
+      return new Token(INTEGER, finalInt);
     } else if (currentChar === '+') {
       this.pos++;
       return new Token(PLUS, currentChar);
