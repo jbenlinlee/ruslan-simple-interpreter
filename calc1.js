@@ -23,13 +23,19 @@ class Interpreter {
       return new Token(EOF, null);
     }
 
+    // Scan to next non-whitespace charAt
+    while (this.expr.charAt(this.pos) === ' ') {
+      this.pos++;
+    }
+
     const currentChar = this.expr.charAt(this.pos);
     let parsedInt = Number.parseInt(currentChar);
 
     if (!Number.isNaN(parsedInt)) {
       let finalInt = 0;
 
-      // If we got a number, consume all chars until we get a non-number
+      // If we got a number, consume all chars until we get a non-number,
+      // storing the final integer in finalInt;
       while (!Number.isNaN(parsedInt)) {
         finalInt = (finalInt * 10) + parsedInt;
         this.pos++;
