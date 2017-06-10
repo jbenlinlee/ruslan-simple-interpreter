@@ -74,6 +74,9 @@ class Interpreter {
       } else if (this.currentCharacter === '*') {
         this.advance();
         return new Token(MULTIPLY, '*');
+      } else if (this.currentCharacter === '/') {
+        this.advance();
+        return new Token(DIVIDE, '/');
       } else {
         console.error(`Unexpected token at ${this.pos}: ${this.currentCharacter}`);
         return null;
@@ -114,8 +117,8 @@ class Interpreter {
 
     // Process next token as plus operator
     const op = this.currentToken;
-    if (!this.eat(PLUS) && !this.eat(MINUS) && !this.eat(MULTIPLY)) {
-      console.log(`Expected PLUS, MINUS, or MULTIPLY got ${this.expr.charAt(this.pos)}`);
+    if (!this.eat(PLUS) && !this.eat(MINUS) && !this.eat(MULTIPLY) && !this.eat(DIVIDE)) {
+      console.log(`Expected PLUS, MINUS, MULTIPLY, or DIVIDE got ${this.expr.charAt(this.pos)}`);
       return NaN;
     }
 
@@ -133,6 +136,8 @@ class Interpreter {
         return left.val - right.val;
       case MULTIPLY:
         return left.val * right.val;
+      case DIVIDE:
+        return left.val / right.val;
       default:
         return undefined;
     }
