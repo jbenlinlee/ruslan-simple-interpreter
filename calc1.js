@@ -34,7 +34,6 @@ class Lexer {
     }
   }
 
-
   // Scan to next non-whitespace
   skipWhitespace() {
     while (this.currentCharacter === ' ') {
@@ -107,74 +106,64 @@ class Interpreter {
     if (this.currentToken && this.currentToken.type == expectedTokenType) {
       this.currentToken = this.lexer.getNextToken();
       return true;
-    } else if (this.currentToken) {
-      return false;
     } else {
       return false;
     }
   }
 
-  /* Evaluates expression */
-  eval() {
-    let lastToken = undefined;
+  /* Evaluates a factor */
+  factor() {
+    let tok = this.currentToken;
+    if (this.eat(INTEGER)) {
+      return tok.val;
+    } else {
+      return NaN;
+    }
+  }
 
+  /* Evaluates expression */
+  expr() {
     // Advance to the first token
     this.currentToken = this.lexer.getNextToken();
     if (this.currentToken == null) {
       return NaN;
     }
 
-    let result = undefined;
+    // Any expression needs to start with a factor
+    let result = this.factor();
+    if (Number.isNaN(result)) {
+      const currentChar = this.lexer.getCurrentCharacter();
+      console.log(`Expected expression to start with INTEGER`);
+      return undefined;
+    }
 
     // Read tokens until we reach EOF
-    while (this.currentToken && this.currentToken.type !== EOF) {
-      const tok = this.currentToken;
+    while (this.currentToken && Operators.has(this.currentToken.type)) {
+      const opTok = this.currentToken;
+      this.eat(opTok.type); // Accept any operator that is in valid op set
 
-      // If no last token processed then
-      // expect and read an integer, otherwise eat an operator
-      // and the following integer
-
-      if (lastToken === undefined) {
-        if (this.eat(INTEGER)) {
-          result = tok.val;
-        } else {
-          console.log(`Expected INTEGER got ${this.lexer.currentCharacter}`);
-          return undefined;
+      let num = this.factor();
+      if (!Number.isNaN(num)) {
+        switch (opTok.type) {
+          case PLUS:
+            result += num;
+            break;
+          case MINUS:
+            result -= num;
+            break;
+          case MULTIPLY:
+            result *= num;
+            break;
+          case DIVIDE:
+            result /= num;
+            break;
+          default:
+            return undefined;
         }
       } else {
-        if (Operators.has(tok.type)) {
-          this.eat(tok.type); // Accept any operator that is in valid op set
-
-          let numTok = this.currentToken;
-          if (this.eat(INTEGER)) {
-            switch (tok.type) {
-              case PLUS:
-                result += numTok.val;
-                break;
-              case MINUS:
-                result -= numTok.val;
-                break;
-              case MULTIPLY:
-                result *= numTok.val;
-                break;
-              case DIVIDE:
-                result /= numTok.val;
-                break;
-              default:
-                return undefined;
-            }
-          } else {
-            console.log(`Expected INTEGER got ${numTok.type}`);
-            return undefined;
-          }
-        } else {
-          console.log(`Expected PLUS, MINUS, MULTIPLY, or DIVIDE got ${this.lexer.currentCharacter}`);
-          return undefined;
-        }
+        console.log(`Expected INTEGER to follow operator ${opTok.type}`);
+        return undefined;
       }
-
-      // Token is valid and in order
-      lastToken = tok;
     }
 
     return result;
@@ -188,6 +177,6 @@ const rl = Readline.createInterface({
 
 rl.on('line', (input) => {
   const interpreter = new Interpreter(input.trimRight());
-  const result = interpreter.eval();
+  const result = interpreter.expr();
   console.log(`>>> ${result}`);
 });
