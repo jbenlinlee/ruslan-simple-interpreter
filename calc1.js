@@ -9,6 +9,12 @@ const EOF = 'EOF';
 
 const Operators = new Set([PLUS,MINUS,MULTIPLY,DIVIDE]);
 
+const OperatorCharacterMap = new Map();
+OperatorCharacterMap.set('+', PLUS);
+OperatorCharacterMap.set('-', MINUS);
+OperatorCharacterMap.set('*', MULTIPLY);
+OperatorCharacterMap.set('/', DIVIDE);
+
 class Token {
   constructor(type, val) {
     this.type = type;
@@ -65,18 +71,10 @@ class Lexer {
 
       if (!Number.isNaN(Number.parseInt(this.currentCharacter))) {
         return new Token(INTEGER, this.scanInteger());
-      } else if (this.currentCharacter === '+') {
+      } else if (OperatorCharacterMap.has(this.currentCharacter)) {
+        let tok = new Token(OperatorCharacterMap.get(this.currentCharacter), this.currentCharacter);
         this.advance();
-        return new Token(PLUS, '+');
-      } else if (this.currentCharacter === '-') {
-        this.advance();
-        return new Token(MINUS, '-');
-      } else if (this.currentCharacter === '*') {
-        this.advance();
-        return new Token(MULTIPLY, '*');
-      } else if (this.currentCharacter === '/') {
-        this.advance();
-        return new Token(DIVIDE, '/');
+        return tok;
       } else {
         console.error(`Unexpected token at ${this.pos}: ${this.currentCharacter}`);
         return null;
