@@ -59,11 +59,9 @@ class Lexer {
   }
 
   getNextToken() {
-    while (this.pos < this.expr.length) {
-
-      if (this.currentCharacter === ' ') {
-        this.skipWhitespace();
-      }
+    if (this.pos < this.expr.length) {
+      // Skip any whitespace to get to the next non-whitespace char
+      this.skipWhitespace();
 
       if (!Number.isNaN(Number.parseInt(this.currentCharacter))) {
         return new Token(INTEGER, this.scanInteger());
@@ -83,9 +81,7 @@ class Lexer {
         console.error(`Unexpected token at ${this.pos}: ${this.currentCharacter}`);
         return null;
       }
-    }
-
-    if (this.pos > this.expr.length - 1) {
+    } else {
       return new Token(EOF, null);
     }
   }
