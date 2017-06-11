@@ -8,6 +8,8 @@ const DIVIDE = 'DIVIDE';
 const EOF = 'EOF';
 
 const Operators = new Set([PLUS,MINUS,MULTIPLY,DIVIDE]);
+const OperatorsTerm = new Set([MULTIPLY,DIVIDE]);
+const OperatorsExpr = new Set([PLUS,MINUS]);
 
 const OperatorCharacterMap = new Map();
 OperatorCharacterMap.set('+', PLUS);
@@ -105,7 +107,8 @@ class Interpreter {
     }
   }
 
-  /* Evaluates a factor */
+  /* Evaluates a factor and returns the value. If input cannot be evaluated
+     as a valid factor, return NaN */
   factor() {
     let tok = this.currentToken;
     if (this.eat(INTEGER)) {
@@ -113,6 +116,38 @@ class Interpreter {
     } else {
       return NaN;
     }
+  }
+
+  /* Evaluates a term and returns the value. If input cannot be evaluated
+     as a valid term, return NaN */
+  term() {
+    let tok = this.currentToken;
+    let result = this.factor();
+    if (!Number.isNaN(result)) {
+      while (this.currentToken && OperatorsTerm.has(this.currentToken.type)) {
+        let opTok = this.currentToken;
+        this.eat(opTok.type);
+
+        let rhsTok = this.currentToken;
+        let rhsNum = this.factor();
+        if (!Number.isNaN(rhsNum)) {
+          switch(opTok.type) {
+            case MULTIPLY:
+              result *= rhsNum;
+              break;
+            case DIVIDE:
+              result /= rhsNum;
+              break;
+          }
+        } else {
+          console.log(`Expected FACTOR to follow ${opTok.type}, got ${rhsTok.type}`);
+        }
+      }
+    } else {
+      console.log(`Expected TERM to start with FACTOR, got ${tok.type}`);
+    }
+
+    return result;
   }
 
   /* Evaluates expression */
@@ -123,20 +158,21 @@ class Interpreter {
       return NaN;
     }
 
-    // Any expression needs to start with a factor
-    let result = this.factor();
+    // Any expression needs to start with a term
+    let result = this.term();
     if (Number.isNaN(result)) {
       const currentChar = this.lexer.getCurrentCharacter();
-      console.log(`Expected expression to start with INTEGER`);
+      console.log(`Expected expression to start with TERM`);
       return undefined;
     }
 
     // Read tokens until we reach EOF
-    while (this.currentToken && Operators.has(this.currentToken.type)) {
+    while (this.currentToken && OperatorsExpr.has(this.currentToken.type)) {
       const opTok = this.currentToken;
       this.eat(opTok.type); // Accept any operator that is in valid op set
 
-      let num = this.factor();
+      let rhsTok = this.currentToken;
+      let num = this.term();
       if (!Number.isNaN(num)) {
         switch (opTok.type) {
           case PLUS:
@@ -145,17 +181,9 @@ class Interpreter {
           case MINUS:
             result -= num;
             break;
-          case MULTIPLY:
-            result *= num;
-            break;
-          case DIVIDE:
-            result /= num;
-            break;
-          default:
-            return undefined;
         }
       } else {
-        console.log(`Expected INTEGER to follow operator ${opTok.type}`);
+        console.log(`Expected TERM to follow operator ${opTok.type}, got ${rhsTok.type}`);
         return undefined;
       }
     }
