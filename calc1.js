@@ -7,9 +7,13 @@ const MULTIPLY = 'MULTIPLY';
 const DIVIDE = 'DIVIDE';
 const EOF = 'EOF';
 
-const Operators = new Set([PLUS,MINUS,MULTIPLY,DIVIDE]);
-const OperatorsTerm = new Set([MULTIPLY,DIVIDE]);
-const OperatorsExpr = new Set([PLUS,MINUS]);
+const OperatorsTerm = new Map();
+OperatorsTerm.set(MULTIPLY, (lhs,rhs) => { return lhs * rhs });
+OperatorsTerm.set(DIVIDE, (lhs,rhs) => { return lhs / rhs });
+
+const OperatorsExpr = new Map();
+OperatorsExpr.set(PLUS, (lhs,rhs) => { return lhs + rhs });
+OperatorsExpr.set(MINUS, (lhs,rhs) => { return lhs - rhs });
 
 const OperatorCharacterMap = new Map();
 OperatorCharacterMap.set('+', PLUS);
@@ -107,6 +111,31 @@ class Interpreter {
     }
   }
 
+  /* Helper function to evaluate production rules of the form:
+     rule: non-term1 ((op1|op2|...|opn) non-term1)*
+
+     The nonterminalFunc should be a function that returns a Number
+     or NaN if the current token doesn't start a valid non-terminal
+  */
+  binaryProduction(nonterminalFunc, operatorMap) {
+    let tok = this.currentToken;
+    let result = nonterminalFunc.call(this);
+    if (!Number.isNaN(result)) {
+      while (this.currentToken && operatorMap.has(this.currentToken.type)) {
+        let opTok = this.currentToken;
+        this.eat(opTok.type); // Accept current type b/c we check in while
+
+        let rhsTok = this.currentToken;
+        let rhsNum = nonterminalFunc.call(this);
+        if (!Number.isNaN(rhsNum)) {
+          result = operatorMap.get(opTok.type)(result, rhsNum);
+        }
+      }
+    }
+
+    return result;
+  }
+
   /* Evaluates a factor and returns the value. If input cannot be evaluated
      as a valid factor, return NaN */
   factor() {
@@ -121,33 +150,7 @@ class Interpreter {
   /* Evaluates a term and returns the value. If input cannot be evaluated
      as a valid term, return NaN */
   term() {
-    let tok = this.currentToken;
-    let result = this.factor();
-    if (!Number.isNaN(result)) {
-      while (this.currentToken && OperatorsTerm.has(this.currentToken.type)) {
-        let opTok = this.currentToken;
-        this.eat(opTok.type);
-
-        let rhsTok = this.currentToken;
-        let rhsNum = this.factor();
-        if (!Number.isNaN(rhsNum)) {
-          switch(opTok.type) {
-            case MULTIPLY:
-              result *= rhsNum;
-              break;
-            case DIVIDE:
-              result /= rhsNum;
-              break;
-          }
-        } else {
-          console.log(`Expected FACTOR to follow ${opTok.type}, got ${rhsTok.type}`);
-        }
-      }
-    } else {
-      console.log(`Expected TERM to start with FACTOR, got ${tok.type}`);
-    }
-
-    return result;
+    return this.binaryProduction(this.factor, OperatorsTerm);
   }
 
   /* Evaluates expression */
