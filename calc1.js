@@ -161,37 +161,7 @@ class Interpreter {
       return NaN;
     }
 
-    // Any expression needs to start with a term
-    let result = this.term();
-    if (Number.isNaN(result)) {
-      const currentChar = this.lexer.getCurrentCharacter();
-      console.log(`Expected expression to start with TERM`);
-      return undefined;
-    }
-
-    // Read tokens until we reach EOF
-    while (this.currentToken && OperatorsExpr.has(this.currentToken.type)) {
-      const opTok = this.currentToken;
-      this.eat(opTok.type); // Accept any operator that is in valid op set
-
-      let rhsTok = this.currentToken;
-      let num = this.term();
-      if (!Number.isNaN(num)) {
-        switch (opTok.type) {
-          case PLUS:
-            result += num;
-            break;
-          case MINUS:
-            result -= num;
-            break;
-        }
-      } else {
-        console.log(`Expected TERM to follow operator ${opTok.type}, got ${rhsTok.type}`);
-        return undefined;
-      }
-    }
-
-    return result;
+    return this.binaryProduction(this.term, OperatorsExpr);
   }
 }
 
