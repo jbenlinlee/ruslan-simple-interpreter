@@ -7,6 +7,8 @@ const MULTIPLY = 'MULTIPLY';
 const DIVIDE = 'DIVIDE';
 const EOF = 'EOF';
 
+const operators = new Set([PLUS,MINUS,MULTIPLY,DIVIDE]);
+
 class Token {
   constructor(type, val) {
     this.type = type;
@@ -14,7 +16,7 @@ class Token {
   }
 }
 
-class Interpreter {
+class Lexer {
   constructor(expr) {
     this.expr = expr || "";
     this.pos = 0;
@@ -31,6 +33,7 @@ class Interpreter {
       this.currentCharacter = undefined;
     }
   }
+
 
   // Scan to next non-whitespace
   skipWhitespace() {
@@ -88,10 +91,21 @@ class Interpreter {
     }
   }
 
+  getCurrentCharacter() {
+    return this.currentCharacter;
+  }
+}
+
+class Interpreter {
+  constructor(expr) {
+    this.lexer = new Lexer(expr);
+    this.currentToken = undefined;
+  }
+
   /* Gets next token if current token is of expected type */
   eat(expectedTokenType) {
     if (this.currentToken && this.currentToken.type == expectedTokenType) {
-      this.currentToken = this.getNextToken();
+      this.currentToken = this.lexer.getNextToken();
       return true;
     } else if (this.currentToken) {
       return false;
@@ -102,11 +116,10 @@ class Interpreter {
 
   /* Evaluates expression */
   eval() {
-    let parsedOps = [];
     let lastToken = undefined;
 
-    // Get the next token
-    this.currentToken = this.getNextToken();
+    // Advance to the first token
+    this.currentToken = this.lexer.getNextToken();
     if (this.currentToken == null) {
       return NaN;
     }
@@ -123,14 +136,14 @@ class Interpreter {
 
       if (lastToken === undefined) {
         if (!this.eat(INTEGER)) {
-          console.log(`Expected INTEGER got ${this.expr.charAt(this.pos)}`);
+          console.log(`Expected INTEGER got ${this.lexer.currentCharacter}`);
           return undefined;
         } else {
           result = tok.val;
         }
       } else {
         if (!this.eat(PLUS) && !this.eat(MINUS) && !this.eat(MULTIPLY) && !this.eat(DIVIDE)) {
-          console.log(`Expected PLUS, MINUS, MULTIPLY, or DIVIDE got ${this.expr.charAt(this.pos)}`);
+          console.log(`Expected PLUS, MINUS, MULTIPLY, or DIVIDE got ${this.lexer.currentCharacter}`);
           return NaN;
         } else {
           let numTok = this.currentToken;
