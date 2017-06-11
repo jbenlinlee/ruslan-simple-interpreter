@@ -129,8 +129,12 @@ class Interpreter {
         let rhsNum = nonterminalFunc.call(this);
         if (!Number.isNaN(rhsNum)) {
           result = operatorMap.get(opTok.type)(result, rhsNum);
+        } else {
+          result = NaN;
         }
       }
+    } else {
+      result = NaN;
     }
 
     return result;
@@ -150,7 +154,12 @@ class Interpreter {
   /* Evaluates a term and returns the value. If input cannot be evaluated
      as a valid term, return NaN */
   term() {
-    return this.binaryProduction(this.factor, OperatorsTerm);
+    let result = this.binaryProduction(this.factor, OperatorsTerm);
+    if (Number.isNaN(result)) {
+      console.log(`Error processing TERM: FACTOR ((MUL|DIV) FACTOR)*`);
+    }
+
+    return result;
   }
 
   /* Evaluates expression */
@@ -161,7 +170,10 @@ class Interpreter {
       return NaN;
     }
 
-    return this.binaryProduction(this.term, OperatorsExpr);
+    let result = this.binaryProduction(this.term, OperatorsExpr);
+    if (Number.isNaN(result)) {
+      console.log(`Error processing EXPR: TERM ((ADD|SUB) TERM)*`);
+    }
   }
 }
 
