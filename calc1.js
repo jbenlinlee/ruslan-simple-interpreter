@@ -7,7 +7,7 @@ const MULTIPLY = 'MULTIPLY';
 const DIVIDE = 'DIVIDE';
 const EOF = 'EOF';
 
-const operators = new Set([PLUS,MINUS,MULTIPLY,DIVIDE]);
+const Operators = new Set([PLUS,MINUS,MULTIPLY,DIVIDE]);
 
 class Token {
   constructor(type, val) {
@@ -127,7 +127,7 @@ class Interpreter {
     let result = undefined;
 
     // Read tokens until we reach EOF
-    while (this.currentToken.type !== EOF) {
+    while (this.currentToken && this.currentToken.type !== EOF) {
       const tok = this.currentToken;
 
       // If no last token processed then
@@ -135,17 +135,16 @@ class Interpreter {
       // and the following integer
 
       if (lastToken === undefined) {
-        if (!this.eat(INTEGER)) {
+        if (this.eat(INTEGER)) {
+          result = tok.val;
+        } else {
           console.log(`Expected INTEGER got ${this.lexer.currentCharacter}`);
           return undefined;
-        } else {
-          result = tok.val;
         }
       } else {
-        if (!this.eat(PLUS) && !this.eat(MINUS) && !this.eat(MULTIPLY) && !this.eat(DIVIDE)) {
-          console.log(`Expected PLUS, MINUS, MULTIPLY, or DIVIDE got ${this.lexer.currentCharacter}`);
-          return NaN;
-        } else {
+        if (Operators.has(tok.type)) {
+          this.eat(tok.type); // Accept any operator that is in valid op set
+
           let numTok = this.currentToken;
           if (this.eat(INTEGER)) {
             switch (tok.type) {
@@ -168,6 +167,9 @@ class Interpreter {
             console.log(`Expected INTEGER got ${numTok.type}`);
             return undefined;
           }
+        } else {
+          console.log(`Expected PLUS, MINUS, MULTIPLY, or DIVIDE got ${this.lexer.currentCharacter}`);
+          return undefined;
         }
       }
 
