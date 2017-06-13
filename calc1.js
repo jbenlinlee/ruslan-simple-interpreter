@@ -5,6 +5,8 @@ const PLUS = 'PLUS';
 const MINUS = 'MINUS';
 const MULTIPLY = 'MULTIPLY';
 const DIVIDE = 'DIVIDE';
+const SUBEXPR_START = '(';
+const SUBEXPR_END = ')'
 const EOF = 'EOF';
 
 const OperatorsTerm = new Map();
@@ -174,6 +176,8 @@ class Interpreter {
     if (Number.isNaN(result)) {
       console.log(`Error processing EXPR: TERM ((ADD|SUB) TERM)*`);
     }
+
+    return result;
   }
 }
 
