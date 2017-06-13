@@ -121,25 +121,28 @@ class Interpreter {
     }
   }
 
+  /* Resolves a sub expression (if allowed by acceptSubExpression) or a
+     non-terminal given by nonterminalFunc */
+  factorOrSubExpression(nonterminalFunc, acceptSubExpression) {
+    if (acceptSubExpression && this.currentToken.type === SUBEXPR_START) {
+      return this.subexpr();
+    } else {
+      return nonterminalFunc.call(this);
+    }
+  }
+
   /* Helper function to evaluate production rules of the form:
      rule: (subexpr|non-term1) ((op1|op2|...|opn) (subexpr|non-term1))*
 
      The nonterminalFunc should be a function that returns a Number
      or NaN if the current token doesn't start a valid non-terminal
-  */
-  binaryProduction(nonterminalFunc, operatorMap) {
-    let tok = this.currentToken;
-    let result = undefined;
 
-    if (this.eat(SUBEXPR_START)) {
-      result = this.expr();
-      if (!this.eat(SUBEXPR_END)) {
-        console.log(`Missing SUBEXPR_END`);
-        return NaN;
-      }
-    } else {
-      result = nonterminalFunc.call(this);
-    }
+     If we shouldn't accept sub expressions on either side, then
+     pass acceptSubExpression = false.
+  */
+  binaryProduction(nonterminalFunc, operatorMap, acceptSubExpression) {
+    let tok = this.currentToken;
+    let result = this.factorOrSubExpression(nonterminalFunc, acceptSubExpression);
 
     if (!Number.isNaN(result)) {
       while (this.currentToken && operatorMap.has(this.currentToken.type)) {
@@ -147,7 +150,7 @@ class Interpreter {
         this.eat(opTok.type); // Accept current type b/c we check in while
 
         let rhsTok = this.currentToken;
-        let rhsNum = nonterminalFunc.call(this);
+        let rhsNum = this.factorOrSubExpression(nonterminalFunc, acceptSubExpression);
         if (!Number.isNaN(rhsNum)) {
           result = operatorMap.get(opTok.type)(result, rhsNum);
         } else {
@@ -155,6 +158,7 @@ class Interpreter {
         }
       }
     } else {
+      // Failed to evaluate LHS
       result = NaN;
     }
 
@@ -175,7 +179,7 @@ class Interpreter {
   /* Evaluates a term and returns the value. If input cannot be evaluated
      as a valid term, return NaN */
   term() {
-    let result = this.binaryProduction(this.factor, OperatorsTerm);
+    let result = this.binaryProduction(this.factor, OperatorsTerm, true);
     if (Number.isNaN(result)) {
       console.log(`Error processing TERM: FACTOR ((MUL|DIV) FACTOR)*`);
     }
@@ -185,13 +189,7 @@ class Interpreter {
 
   /* Evaluates expression */
   expr() {
-    // Advance to the first token
-    this.currentToken = this.lexer.getNextToken();
-    if (this.currentToken == null) {
-      return NaN;
-    }
-
-    let result = this.binaryProduction(this.term, OperatorsExpr);
+    let result = this.binaryProduction(this.term, OperatorsExpr, false);
     if (Number.isNaN(result)) {
       console.log(`Error processing EXPR: TERM ((ADD|SUB) TERM)*`);
     }
@@ -202,11 +200,27 @@ class Interpreter {
   /* Evaluates a subexpression "(EXPR)" */
   subexpr() {
     if (this.eat(SUBEXPR_START)) {
-      return this.expr();
+      let result = this.expr();
+      if (!this.eat(SUBEXPR_END)) {
+        console.log(`SUBEXPR_START missing SUBEXPR_END`);
+        return NaN;
+      }
+
+      return result;
     } else {
       console.log(`Error processing SUBEXPR: Expected "("`);
       return NaN;
     }
+  }
+
+  eval() {
+    // Advance to the first token
+    this.currentToken = this.lexer.getNextToken();
+    if (this.currentToken == null) {
+      return NaN;
+    }
+
+    return this.expr();
   }
 }
 
@@ -217,6 +231,6 @@ const rl = Readline.createInterface({
 
 rl.on('line', (input) => {
   const interpreter = new Interpreter(input.trimRight());
-  const result = interpreter.expr();
+  const result = interpreter.eval();
   console.log(`>>> ${result}`);
 });
