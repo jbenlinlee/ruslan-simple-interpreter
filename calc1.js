@@ -121,16 +121,6 @@ class Interpreter {
     }
   }
 
-  /* Resolves a sub expression (if allowed by acceptSubExpression) or a
-     non-terminal given by nonterminalFunc */
-  factorOrSubExpression(nonterminalFunc, acceptSubExpression) {
-    if (acceptSubExpression && this.currentToken.type === SUBEXPR_START) {
-      return this.subexpr();
-    } else {
-      return nonterminalFunc.call(this);
-    }
-  }
-
   /* Helper function to evaluate production rules of the form:
      rule: (subexpr|non-term1) ((op1|op2|...|opn) (subexpr|non-term1))*
 
@@ -142,7 +132,7 @@ class Interpreter {
   */
   binaryProduction(nonterminalFunc, operatorMap, acceptSubExpression) {
     let tok = this.currentToken;
-    let result = this.factorOrSubExpression(nonterminalFunc, acceptSubExpression);
+    let result = nonterminalFunc.call(this);
 
     if (!Number.isNaN(result)) {
       while (this.currentToken && operatorMap.has(this.currentToken.type)) {
@@ -150,7 +140,7 @@ class Interpreter {
         this.eat(opTok.type); // Accept current type b/c we check in while
 
         let rhsTok = this.currentToken;
-        let rhsNum = this.factorOrSubExpression(nonterminalFunc, acceptSubExpression);
+        let rhsNum = nonterminalFunc.call(this);
         if (!Number.isNaN(rhsNum)) {
           result = operatorMap.get(opTok.type)(result, rhsNum);
         } else {
@@ -171,6 +161,13 @@ class Interpreter {
     let tok = this.currentToken;
     if (this.eat(INTEGER)) {
       return tok.val;
+    } else if (this.eat(SUBEXPR_START)) {
+      let result = this.expr();
+      if (!this.eat(SUBEXPR_END)) {
+        console.log("Missing SUBEXPR_END");
+      }
+
+      return result;
     } else {
       return NaN;
     }
