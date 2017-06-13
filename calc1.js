@@ -23,6 +23,10 @@ OperatorCharacterMap.set('-', MINUS);
 OperatorCharacterMap.set('*', MULTIPLY);
 OperatorCharacterMap.set('/', DIVIDE);
 
+const SubExprCharacterMap = new Map();
+SubExprCharacterMap.set('(', SUBEXPR_START);
+SubExprCharacterMap.set(')', SUBEXPR_END);
+
 class Token {
   constructor(type, val) {
     this.type = type;
@@ -83,6 +87,10 @@ class Lexer {
         let tok = new Token(OperatorCharacterMap.get(this.currentCharacter), this.currentCharacter);
         this.advance();
         return tok;
+      } else if (SubExprCharacterMap.has(this.currentCharacter)) {
+        let tok = new Token(SubExprCharacterMap.get(this.currentCharacter), this.currentCharacter);
+        this.advance();
+        return tok;
       } else {
         console.error(`Unexpected token at ${this.pos}: ${this.currentCharacter}`);
         return null;
@@ -114,14 +122,25 @@ class Interpreter {
   }
 
   /* Helper function to evaluate production rules of the form:
-     rule: non-term1 ((op1|op2|...|opn) non-term1)*
+     rule: (subexpr|non-term1) ((op1|op2|...|opn) (subexpr|non-term1))*
 
      The nonterminalFunc should be a function that returns a Number
      or NaN if the current token doesn't start a valid non-terminal
   */
   binaryProduction(nonterminalFunc, operatorMap) {
     let tok = this.currentToken;
-    let result = nonterminalFunc.call(this);
+    let result = undefined;
+
+    if (this.eat(SUBEXPR_START)) {
+      result = this.expr();
+      if (!this.eat(SUBEXPR_END)) {
+        console.log(`Missing SUBEXPR_END`);
+        return NaN;
+      }
+    } else {
+      result = nonterminalFunc.call(this);
+    }
+
     if (!Number.isNaN(result)) {
       while (this.currentToken && operatorMap.has(this.currentToken.type)) {
         let opTok = this.currentToken;
@@ -178,6 +197,16 @@ class Interpreter {
     }
 
     return result;
+  }
+
+  /* Evaluates a subexpression "(EXPR)" */
+  subexpr() {
+    if (this.eat(SUBEXPR_START)) {
+      return this.expr();
+    } else {
+      console.log(`Error processing SUBEXPR: Expected "("`);
+      return NaN;
+    }
   }
 }
 
