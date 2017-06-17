@@ -1,113 +1,27 @@
 const Readline = require('readline');
-
-const INTEGER = 'INTEGER';
-const PLUS = 'PLUS';
-const MINUS = 'MINUS';
-const MULTIPLY = 'MULTIPLY';
-const DIVIDE = 'DIVIDE';
-const SUBEXPR_START = '(';
-const SUBEXPR_END = ')'
-const EOF = 'EOF';
+const Lexer = require('./lexer.js');
 
 const OperatorsTerm = new Map();
-OperatorsTerm.set(MULTIPLY, (lhs,rhs) => { return lhs * rhs });
-OperatorsTerm.set(DIVIDE, (lhs,rhs) => { return lhs / rhs });
+OperatorsTerm.set(Lexer.MULTIPLY, (lhs,rhs) => { return lhs * rhs });
+OperatorsTerm.set(Lexer.DIVIDE, (lhs,rhs) => { return lhs / rhs });
 
 const OperatorsExpr = new Map();
-OperatorsExpr.set(PLUS, (lhs,rhs) => { return lhs + rhs });
-OperatorsExpr.set(MINUS, (lhs,rhs) => { return lhs - rhs });
+OperatorsExpr.set(Lexer.PLUS, (lhs,rhs) => { return lhs + rhs });
+OperatorsExpr.set(Lexer.MINUS, (lhs,rhs) => { return lhs - rhs });
 
 const OperatorCharacterMap = new Map();
-OperatorCharacterMap.set('+', PLUS);
-OperatorCharacterMap.set('-', MINUS);
-OperatorCharacterMap.set('*', MULTIPLY);
-OperatorCharacterMap.set('/', DIVIDE);
+OperatorCharacterMap.set('+', Lexer.PLUS);
+OperatorCharacterMap.set('-', Lexer.MINUS);
+OperatorCharacterMap.set('*', Lexer.MULTIPLY);
+OperatorCharacterMap.set('/', Lexer.DIVIDE);
 
 const SubExprCharacterMap = new Map();
-SubExprCharacterMap.set('(', SUBEXPR_START);
-SubExprCharacterMap.set(')', SUBEXPR_END);
-
-class Token {
-  constructor(type, val) {
-    this.type = type;
-    this.val = val;
-  }
-}
-
-class Lexer {
-  constructor(expr) {
-    this.expr = expr || "";
-    this.pos = 0;
-    this.currentCharacter = this.expr.charAt(this.pos);
-    this.currentToken = undefined;
-  }
-
-  // Get next character
-  advance() {
-    this.pos++;
-    if (this.pos < this.expr.length) {
-      this.currentCharacter = this.expr.charAt(this.pos);
-    } else {
-      this.currentCharacter = undefined;
-    }
-  }
-
-  // Scan to next non-whitespace
-  skipWhitespace() {
-    while (this.currentCharacter === ' ') {
-      this.advance();
-    }
-  }
-
-  // Scan in an entire integer
-  scanInteger() {
-    let finalInt = undefined;
-
-    if (this.currentCharacter) {
-      let parsedInt = Number.parseInt(this.currentCharacter);
-      finalInt = 0;
-      while (!Number.isNaN(parsedInt)) {
-        finalInt = (finalInt * 10) + parsedInt;
-        this.advance();
-        parsedInt = Number.parseInt(this.currentCharacter);
-      }
-    }
-
-    return finalInt;
-  }
-
-  getNextToken() {
-    if (this.pos < this.expr.length) {
-      // Skip any whitespace to get to the next non-whitespace char
-      this.skipWhitespace();
-
-      if (!Number.isNaN(Number.parseInt(this.currentCharacter))) {
-        return new Token(INTEGER, this.scanInteger());
-      } else if (OperatorCharacterMap.has(this.currentCharacter)) {
-        let tok = new Token(OperatorCharacterMap.get(this.currentCharacter), this.currentCharacter);
-        this.advance();
-        return tok;
-      } else if (SubExprCharacterMap.has(this.currentCharacter)) {
-        let tok = new Token(SubExprCharacterMap.get(this.currentCharacter), this.currentCharacter);
-        this.advance();
-        return tok;
-      } else {
-        console.error(`Unexpected token at ${this.pos}: ${this.currentCharacter}`);
-        return null;
-      }
-    } else {
-      return new Token(EOF, null);
-    }
-  }
-
-  getCurrentCharacter() {
-    return this.currentCharacter;
-  }
-}
+SubExprCharacterMap.set('(', Lexer.SUBEXPR_START);
+SubExprCharacterMap.set(')', Lexer.SUBEXPR_END);
 
 class Interpreter {
   constructor(expr) {
-    this.lexer = new Lexer(expr);
+    this.lexer = new Lexer.Lexer(expr);
     this.currentToken = undefined;
   }
 
@@ -159,11 +73,11 @@ class Interpreter {
      as a valid factor, return NaN */
   factor() {
     let tok = this.currentToken;
-    if (this.eat(INTEGER)) {
+    if (this.eat(Lexer.INTEGER)) {
       return tok.val;
-    } else if (this.eat(SUBEXPR_START)) {
+    } else if (this.eat(Lexer.SUBEXPR_START)) {
       let result = this.expr();
-      if (!this.eat(SUBEXPR_END)) {
+      if (!this.eat(Lexer.SUBEXPR_END)) {
         console.log("Missing SUBEXPR_END");
       }
 
@@ -196,9 +110,9 @@ class Interpreter {
 
   /* Evaluates a subexpression "(EXPR)" */
   subexpr() {
-    if (this.eat(SUBEXPR_START)) {
+    if (this.eat(Lexer.SUBEXPR_START)) {
       let result = this.expr();
-      if (!this.eat(SUBEXPR_END)) {
+      if (!this.eat(Lexer.SUBEXPR_END)) {
         console.log(`SUBEXPR_START missing SUBEXPR_END`);
         return NaN;
       }
