@@ -57,10 +57,29 @@ describe('Interpreter', () => {
   });
 
   describe('when handling expressions with parentheses', () => {
-    it.skip('should evaluate sub-expression before addition', () => {});
-    it.skip('should evaluate sub-expression before subtraction', () => {});
-    it.skip('should evaluate sub-expression before multiplication', () => {});
-    it.skip('should evaluate sub-expression before division', () => {});
-    it.skip('should evaluate sub-expression within a sub-expression', () => {});
+    it('should evaluate leading sub-expression before multiplication', () => {
+      const interpreter = new Interpreter("(3 + 4) * 5"); // Should be 35 and not 23
+      assert.equal(interpreter.eval(), 35);
+    });
+
+    it('should evaluate trailing sub-expression after multiplication', () => {
+      const interpreter = new Interpreter("5 * (3 + 4)"); // Should be 35 and not 23
+      assert.equal(interpreter.eval(), 35);
+    });
+
+    it('should evaluate leading sub-expression before division', () => {
+      const interpreter = new Interpreter("(24 - 10) / 7"); // Should be 2 and not 24 - (10 / 7)
+      assert.equal(interpreter.eval(), 2);
+    });
+
+    it('should evaluate trailing sub-expression after division', () => {
+      const interpreter = new Interpreter("28 / (24 - 10)");
+      assert.equal(interpreter.eval(), 2);
+    });
+
+    it('should evaluate sub-expression within a sub-expression', () => {
+      const interpreter = new Interpreter("15 * ((24 - 10) / 7)");
+      assert.equal(interpreter.eval(), 30);
+    });
   });
 });
