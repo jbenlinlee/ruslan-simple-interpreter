@@ -40,4 +40,10 @@ describe('Lexer', () => {
       assert.equal(tok.val, 890);
     });
   });
+
+  it('should return null for a non-integer, non-operator, non-parenthesis input', () => {
+    const lexer = new Lexer.Lexer("abc");
+    const tok = lexer.getNextToken();
+    assert.strictEqual(tok, null);
+  })
 });
