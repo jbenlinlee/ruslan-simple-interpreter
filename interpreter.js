@@ -1,4 +1,5 @@
 const Lexer = require('./lexer.js');
+const AST = require('./ast.js');
 
 const OperatorsTerm = new Map();
 OperatorsTerm.set(Lexer.MULTIPLY, (lhs,rhs) => { return lhs * rhs });
@@ -37,22 +38,22 @@ module.exports = class Interpreter {
     let tok = this.currentToken;
     let result = nonterminalFunc.call(this);
 
-    if (!Number.isNaN(result)) {
+    if (result !== null) {
       while (this.currentToken && operatorMap.has(this.currentToken.type)) {
         let opTok = this.currentToken;
         this.eat(opTok.type); // Accept current type b/c we check in while
 
         let rhsTok = this.currentToken;
-        let rhsNum = nonterminalFunc.call(this);
-        if (!Number.isNaN(rhsNum)) {
-          result = operatorMap.get(opTok.type)(result, rhsNum);
+        let rhsNode = nonterminalFunc.call(this);
+        if (rhsNode !== null) {
+          result = new AST.BinOpNode(result, opTok, rhsNode);
         } else {
-          result = NaN;
+          result = null;
         }
       }
     } else {
       // Failed to evaluate LHS
-      result = NaN;
+      result = null;
     }
 
     return result;
@@ -63,7 +64,7 @@ module.exports = class Interpreter {
   factor() {
     let tok = this.currentToken;
     if (this.eat(Lexer.INTEGER)) {
-      return tok.val;
+      return new AST.IntegerNode(tok.val);
     } else if (this.eat(Lexer.SUBEXPR_START)) {
       let result = this.expr();
       if (!this.eat(Lexer.SUBEXPR_END)) {
@@ -72,7 +73,7 @@ module.exports = class Interpreter {
 
       return result;
     } else {
-      return NaN;
+      return null;
     }
   }
 
@@ -80,7 +81,7 @@ module.exports = class Interpreter {
      as a valid term, return NaN */
   term() {
     let result = this.binaryProduction(this.factor, OperatorsTerm, true);
-    if (Number.isNaN(result)) {
+    if (result == null) {
       console.log(`Error processing TERM: FACTOR ((MUL|DIV) FACTOR)*`);
     }
 
@@ -90,7 +91,7 @@ module.exports = class Interpreter {
   /* Evaluates expression */
   expr() {
     let result = this.binaryProduction(this.term, OperatorsExpr, false);
-    if (Number.isNaN(result)) {
+    if (result == null) {
       console.log(`Error processing EXPR: TERM ((ADD|SUB) TERM)*`);
     }
 
@@ -103,13 +104,38 @@ module.exports = class Interpreter {
       let result = this.expr();
       if (!this.eat(Lexer.SUBEXPR_END)) {
         console.log(`SUBEXPR_START missing SUBEXPR_END`);
-        return NaN;
+        return null;
       }
 
       return result;
     } else {
       console.log(`Error processing SUBEXPR: Expected "("`);
-      return NaN;
+      return null;
+    }
+  }
+
+  /* Evaluates AST starting from a root node */
+  evalTree(node) {
+    if (node.hasOwnProperty("op")) {
+      const lhs = this.evalTree(node.left);
+      const rhs = this.evalTree(node.right);
+
+      switch (node.op.type) {
+        case Lexer.PLUS:
+          return lhs + rhs;
+          break;
+        case Lexer.MINUS:
+          return lhs - rhs;
+          break;
+        case Lexer.MULTIPLY:
+          return lhs * rhs;
+          break;
+        case Lexer.DIVIDE:
+          return lhs / rhs;
+          break;
+      }
+    } else if (node.hasOwnProperty("val")) {
+      return node.val
     }
   }
 
@@ -120,6 +146,10 @@ module.exports = class Interpreter {
       return NaN;
     }
 
-    return this.expr();
+    // Parse the expression into AST
+    const astree = this.expr();
+
+    // Use the AST to calculate the final result
+    return this.evalTree(astree);
   }
 }
