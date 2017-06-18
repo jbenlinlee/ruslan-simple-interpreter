@@ -64,7 +64,7 @@ module.exports = class Interpreter {
   factor() {
     let tok = this.currentToken;
     if (this.eat(Lexer.INTEGER)) {
-      return new AST.IntegerNode(tok.val);
+      return new AST.IntegerNode(tok.val, tok);
     } else if (this.eat(Lexer.SUBEXPR_START)) {
       let result = this.expr();
       if (!this.eat(Lexer.SUBEXPR_END)) {
@@ -114,29 +114,40 @@ module.exports = class Interpreter {
     }
   }
 
-  /* Evaluates AST starting from a root node */
-  evalTree(node) {
-    if (node.hasOwnProperty("op")) {
-      const lhs = this.evalTree(node.left);
-      const rhs = this.evalTree(node.right);
+  static visit_BINOP(node) {
+    const lhs = this.evalTree(node.left);
+    const rhs = this.evalTree(node.right);
 
-      switch (node.op.type) {
-        case Lexer.PLUS:
-          return lhs + rhs;
-          break;
-        case Lexer.MINUS:
-          return lhs - rhs;
-          break;
-        case Lexer.MULTIPLY:
-          return lhs * rhs;
-          break;
-        case Lexer.DIVIDE:
-          return lhs / rhs;
-          break;
-      }
-    } else if (node.hasOwnProperty("val")) {
-      return node.val
+    switch (node.op.type) {
+      case Lexer.PLUS:
+        return lhs + rhs;
+      case Lexer.MINUS:
+        return lhs - rhs;
+      case Lexer.MULTIPLY:
+        return lhs * rhs;
+      case Lexer.DIVIDE:
+        return lhs / rhs;
     }
+  }
+
+  static visit_INTEGER(node) {
+    return node.val;
+  }
+
+  /* Determines the type of a node */
+  static node_type(node) {
+    if (node.op.type === Lexer.INTEGER) {
+      return 'INTEGER';
+    } else {
+      return 'BINOP';
+    }
+  }
+
+  /* Evaluates AST starting from a root node */
+  static evalTree(node) {
+    const nodeType = Interpreter.node_type(node);
+    const visitor = Interpreter[`visit_${nodeType}`];
+    return visitor.call(this, node);
   }
 
   eval() {
@@ -150,6 +161,6 @@ module.exports = class Interpreter {
     const astree = this.expr();
 
     // Use the AST to calculate the final result
-    return this.evalTree(astree);
+    return Interpreter.evalTree(astree);
   }
 }

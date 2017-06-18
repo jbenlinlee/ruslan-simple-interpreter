@@ -3,11 +3,13 @@ module.exports.BinOpNode = class BinOpNode {
     this.left = left;
     this.op = op;
     this.right = right;
+    this.type = 'BinOp';
   }
 }
 
 module.exports.IntegerNode = class IntegerNode {
-  constructor(val) {
+  constructor(val, op) {
     this.val = val;
+    this.op = op;
   }
 }
