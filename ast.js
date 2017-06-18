@@ -1,18 +1,34 @@
 const Lexer = require('./lexer.js');
 
+const BINOP = 'BINOP';
+const UNARYOP = 'UNARYOP';
+const INTEGER = 'INTEGER';
+
 module.exports.BinOpNode = class BinOpNode {
+  /* left and right should be other AST nodes.
+     op should be a binary operator token */
   constructor(left, op, right) {
     this.left = left;
     this.op = op;
     this.right = right;
-    this.type = 'BinOp';
+    this.type = BINOP;
   }
+}
+
+module.exports.UnaryOpNode = class UnaryOpNode {
+    /* op should be a unary operator, and expr should be another AST node */
+    constructor(op, expr) {
+      this.op = op;
+      this.expr = expr
+      this.type = UNARYOP;
+    }
 }
 
 module.exports.IntegerNode = class IntegerNode {
   constructor(val, op) {
     this.val = val;
     this.op = op;
+    this.type = INTEGER;
   }
 }
 
@@ -37,19 +53,9 @@ module.exports.Visitor = class AST {
     return node.val;
   }
 
-  /* Determines the type of a node */
-  static node_type(node) {
-    if (node.op.type === Lexer.INTEGER) {
-      return 'INTEGER';
-    } else {
-      return 'BINOP';
-    }
-  }
-
   /* Evaluates AST starting from a root node */
   static eval(node) {
-    const nodeType = AST.node_type(node);
-    const visitor = AST[`visit_${nodeType}`];
+    const visitor = AST[`visit_${node.type}`];
     return visitor.call(this, node);
   }
 }
