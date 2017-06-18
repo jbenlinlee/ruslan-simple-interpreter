@@ -72,6 +72,13 @@ module.exports = class Interpreter {
       }
 
       return result;
+    } else if (this.eat(Lexer.PLUS) || this.eat(Lexer.MINUS)) {
+      const rhs = this.factor();
+      if (rhs == null) {
+        console.log("Invalid FACTOR after Unary Operator");
+        return null;
+      }
+      return new AST.UnaryOpNode(tok, rhs);
     } else {
       return null;
     }

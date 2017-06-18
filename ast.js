@@ -53,6 +53,20 @@ module.exports.Visitor = class AST {
     return node.val;
   }
 
+  static visit_UNARYOP(node) {
+    let factor = 1;
+    switch (node.op.type) {
+      case Lexer.PLUS:
+        factor = 1;
+        break;
+      case Lexer.MINUS:
+        factor = -1;
+        break;
+    }
+
+    return factor * AST.eval(node.expr);
+  }
+
   /* Evaluates AST starting from a root node */
   static eval(node) {
     const visitor = AST[`visit_${node.type}`];
