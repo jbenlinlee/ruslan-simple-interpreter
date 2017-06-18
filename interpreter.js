@@ -114,42 +114,6 @@ module.exports = class Interpreter {
     }
   }
 
-  static visit_BINOP(node) {
-    const lhs = this.evalTree(node.left);
-    const rhs = this.evalTree(node.right);
-
-    switch (node.op.type) {
-      case Lexer.PLUS:
-        return lhs + rhs;
-      case Lexer.MINUS:
-        return lhs - rhs;
-      case Lexer.MULTIPLY:
-        return lhs * rhs;
-      case Lexer.DIVIDE:
-        return lhs / rhs;
-    }
-  }
-
-  static visit_INTEGER(node) {
-    return node.val;
-  }
-
-  /* Determines the type of a node */
-  static node_type(node) {
-    if (node.op.type === Lexer.INTEGER) {
-      return 'INTEGER';
-    } else {
-      return 'BINOP';
-    }
-  }
-
-  /* Evaluates AST starting from a root node */
-  static evalTree(node) {
-    const nodeType = Interpreter.node_type(node);
-    const visitor = Interpreter[`visit_${nodeType}`];
-    return visitor.call(this, node);
-  }
-
   eval() {
     // Advance to the first token
     this.currentToken = this.lexer.getNextToken();
@@ -161,6 +125,6 @@ module.exports = class Interpreter {
     const astree = this.expr();
 
     // Use the AST to calculate the final result
-    return Interpreter.evalTree(astree);
+    return AST.AST.eval(astree);
   }
 }
