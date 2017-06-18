@@ -82,4 +82,16 @@ describe('Interpreter', () => {
       assert.equal(interpreter.eval(), 30);
     });
   });
+
+  describe('when handling expressions with unary operators', () => {
+    it.skip('should evaluate the unary operator on the LHS factor before addition');
+    it.skip('should evaluate the unary operator on the RHS factor before addition');
+    it.skip('should evaluate the unary operator on the LHS factor before subtraction');
+    it.skip('should evaluate the unary operator on the RHS factor before subtraction');
+    it.skip('should evaluate the unary operator on the LHS factor before multiplication');
+    it.skip('should evaluate the unary operator on the RHS factor before multiplication');
+    it.skip('should evaluate the unary operator on the LHS factor before division');
+    it.skip('should evaluate the unary operator on the RHS factor before division');
+    it.skip('should handle sequences of unary operators');
+  });
 });
