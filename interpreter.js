@@ -125,6 +125,6 @@ module.exports = class Interpreter {
     const astree = this.expr();
 
     // Use the AST to calculate the final result
-    return AST.AST.eval(astree);
+    return AST.Visitor.eval(astree);
   }
 }

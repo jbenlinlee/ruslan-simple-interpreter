@@ -16,7 +16,7 @@ module.exports.IntegerNode = class IntegerNode {
   }
 }
 
-module.exports.AST = class AST {
+module.exports.Visitor = class AST {
   static visit_BINOP(node) {
     const lhs = AST.eval(node.left);
     const rhs = AST.eval(node.right);
