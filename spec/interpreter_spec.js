@@ -84,14 +84,49 @@ describe('Interpreter', () => {
   });
 
   describe('when handling expressions with unary operators', () => {
-    it.skip('should evaluate the unary operator on the LHS factor before addition');
-    it.skip('should evaluate the unary operator on the RHS factor before addition');
-    it.skip('should evaluate the unary operator on the LHS factor before subtraction');
-    it.skip('should evaluate the unary operator on the RHS factor before subtraction');
-    it.skip('should evaluate the unary operator on the LHS factor before multiplication');
-    it.skip('should evaluate the unary operator on the RHS factor before multiplication');
-    it.skip('should evaluate the unary operator on the LHS factor before division');
-    it.skip('should evaluate the unary operator on the RHS factor before division');
-    it.skip('should handle sequences of unary operators');
+    it('should evaluate the unary operator on the LHS factor before addition', () => {
+      const interpreter = new Interpreter("-31 + 5");
+      assert.equal(interpreter.eval(), -26);
+    });
+
+    it('should evaluate the unary operator on the RHS factor before addition', () => {
+      const interpreter = new Interpreter("42 + -33");
+      assert.equal(interpreter.eval(), 9);
+    });
+
+    it('should evaluate the unary operator on the LHS factor before subtraction', () => {
+      const interpreter = new Interpreter("-7 - 5");
+      assert.equal(interpreter.eval(), -12);
+    });
+
+    it('should evaluate the unary operator on the RHS factor before subtraction', () => {
+      const interpreter = new Interpreter("6 - -5");
+      assert.equal(interpreter.eval(), 11);
+    });
+
+    it('should evaluate the unary operator on the LHS factor before multiplication', () => {
+      const interpreter = new Interpreter("-3 * 7");
+      assert.equal(interpreter.eval(), -21);
+    });
+
+    it('should evaluate the unary operator on the RHS factor before multiplication', () => {
+      const interpreter = new Interpreter("7 * -3");
+      assert.equal(interpreter.eval(), -21);
+    });
+
+    it('should evaluate the unary operator on the LHS factor before division', () => {
+      const interpreter = new Interpreter("-12 / 4");
+      assert.equal(interpreter.eval(), -3);
+    });
+
+    it('should evaluate the unary operator on the RHS factor before division', () => {
+      const interpreter = new Interpreter("12 / -4");
+      assert.equal(interpreter.eval(), -3);
+    });
+
+    it('should handle sequences of unary operators', () => {
+      const interpreter = new Interpreter("--4");
+      assert.equal(interpreter.eval(), 4);
+    });
   });
 });
