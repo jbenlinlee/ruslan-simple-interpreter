@@ -25,6 +25,10 @@ const SubExprCharacterMap = new Map();
 SubExprCharacterMap.set('(', SUBEXPR_START);
 SubExprCharacterMap.set(')', SUBEXPR_END);
 
+const ReservedWords = new Set();
+ReservedWords.add(BEGIN);
+ReservedWords.add(END);
+
 module.exports.INTEGER = INTEGER;
 module.exports.PLUS = PLUS;
 module.exports.MINUS = MINUS;
@@ -33,6 +37,12 @@ module.exports.DIVIDE = DIVIDE;
 module.exports.SUBEXPR_START = SUBEXPR_START;
 module.exports.SUBEXPR_END = SUBEXPR_END;
 module.exports.EOF = EOF;
+module.exports.BEGIN = BEGIN;
+module.exports.END = END;
+module.exports.DOT = DOT;
+module.exports.ASSIGN = ASSIGN;
+module.exports.SEMI = SEMI;
+module.exports.ID = ID;
 
 module.exports.Lexer = class Lexer {
   constructor(expr) {
@@ -49,6 +59,16 @@ module.exports.Lexer = class Lexer {
       this.currentCharacter = this.expr.charAt(this.pos);
     } else {
       this.currentCharacter = undefined;
+    }
+  }
+
+  // Return the next character without consuming the current character
+  peek() {
+    const peekPos = this.pos + 1;
+    if (peekPos < this.expr.length) {
+      return this.expr.charAt(peekPos);
+    } else {
+      return undefined;
     }
   }
 
@@ -76,21 +96,69 @@ module.exports.Lexer = class Lexer {
     return finalInt;
   }
 
+  static isAlphaNumeric(char) {
+    const code = char.charCodeAt(0);
+    if (!(code > 47 && code < 58) && // numeric (0-9)
+        !(code > 64 && code < 91) && // upper alpha
+        !(code > 96 && code < 123)) { // lower alphanumeric
+          return false;
+    }
+
+    return true;
+  }
+
+  // Scan an alphanumeric string
+  scanAlphaNumeric() {
+    let chars = [];
+
+    while (this.currentCharacter && Lexer.isAlphaNumeric(this.currentCharacter)) {
+      chars.push(this.currentCharacter);
+      this.advance();
+    }
+
+    return chars.join('');
+  }
+
+  idToken() {
+    let id = this.scanAlphaNumeric();
+    if (ReservedWords.has(id)) {
+      return new Token(id, id);
+    } else {
+      return new Token(ID, id);
+    }
+  }
+
   getNextToken() {
     if (this.pos < this.expr.length) {
       // Skip any whitespace to get to the next non-whitespace char
       this.skipWhitespace();
 
       if (!Number.isNaN(Number.parseInt(this.currentCharacter))) {
+        // Handle integers
         return new Token(INTEGER, this.scanInteger());
       } else if (OperatorCharacterMap.has(this.currentCharacter)) {
+        // Handle operators
         let tok = new Token(OperatorCharacterMap.get(this.currentCharacter), this.currentCharacter);
         this.advance();
         return tok;
+      } else if (this.currentCharacter === ':' && this.peek() === '=') {
+        this.advance();
+        this.advance();
+        return new Token(ASSIGN, ':=');
+      } else if (this.currentCharacter === ';') {
+        this.advance();
+        return new Token(SEMI, ';');
+      } else if (this.currentCharacter === '.') {
+        this.advance();
+        return new Token(DOT, '.');
       } else if (SubExprCharacterMap.has(this.currentCharacter)) {
+        // Handle lparen / rparen
         let tok = new Token(SubExprCharacterMap.get(this.currentCharacter), this.currentCharacter);
         this.advance();
         return tok;
+      } else if (Lexer.isAlphaNumeric(this.currentCharacter)) {
+        // Handle reserved words and identifiers
+        return this.idToken();
       } else {
         console.error(`Unexpected token at ${this.pos}: ${this.currentCharacter}`);
         return null;
