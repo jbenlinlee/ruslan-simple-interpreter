@@ -6,8 +6,14 @@ const MINUS = 'MINUS';
 const MULTIPLY = 'MULTIPLY';
 const DIVIDE = 'DIVIDE';
 const SUBEXPR_START = '(';
-const SUBEXPR_END = ')'
+const SUBEXPR_END = ')';
 const EOF = 'EOF';
+const BEGIN = 'BEGIN';
+const END = 'END';
+const DOT = '.';
+const ASSIGN = ':=';
+const SEMI = ';';
+const ID = 'ID';
 
 const OperatorCharacterMap = new Map();
 OperatorCharacterMap.set('+', PLUS);
