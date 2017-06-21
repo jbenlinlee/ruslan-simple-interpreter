@@ -7,7 +7,6 @@ const rl = Readline.createInterface({
 });
 
 rl.on('line', (input) => {
-  const interpreter = new Interpreter(input.trimRight());
-  const result = interpreter.eval();
+  const result = Interpreter.eval(input.trimRight());
   console.log(`>>> ${result}`);
 });
