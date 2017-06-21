@@ -39,8 +39,7 @@ module.exports = class Interpreter {
   }
 
   static eval(stmt) {
-    const parser = new Parser(stmt);
-    const astree = parser.parse();
+    const astree = Parser.parseStatement(stmt);
 
     // Use the AST to calculate the final result
     return Interpreter.evalTree(astree);

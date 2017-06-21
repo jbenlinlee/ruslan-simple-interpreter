@@ -130,4 +130,9 @@ module.exports = class Parser {
 
     return this.expr();
   }
+
+  static parseStatement(stmt) {
+    const parser = new Parser(stmt);
+    return parser.parse();
+  }
 }
