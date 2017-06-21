@@ -80,7 +80,7 @@ module.exports = class Parser {
       }
       return new AST.UnaryOpNode(tok, rhs);
     } else {
-      return null;
+      return this.variable();
     }
   }
 
@@ -217,7 +217,7 @@ module.exports = class Parser {
     }
   }
 
-  parse() {
+  parseExpression() {
     // Advance to the first token
     this.currentToken = this.lexer.getNextToken();
     if (this.currentToken == null) {
@@ -229,6 +229,6 @@ module.exports = class Parser {
 
   static parseStatement(stmt) {
     const parser = new Parser(stmt);
-    return parser.parse();
+    return parser.parseExpression();
   }
 }
