@@ -2,7 +2,7 @@ const Interpreter = require('../interpreter.js');
 const assert = require('assert');
 
 function testMathStatement(stmt, val) {
-  const outcome = Interpreter.eval(stmt);
+  const outcome = Interpreter.evalStatement(stmt);
   assert.equal(outcome, val);
 }
 

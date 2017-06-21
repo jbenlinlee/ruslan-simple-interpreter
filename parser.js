@@ -217,7 +217,7 @@ module.exports = class Parser {
     }
   }
 
-  parseExpression() {
+  _parseExpression() {
     // Advance to the first token
     this.currentToken = this.lexer.getNextToken();
     if (this.currentToken == null) {
@@ -227,8 +227,22 @@ module.exports = class Parser {
     return this.expr();
   }
 
-  static parseStatement(stmt) {
+  _parseProgram() {
+    this.currentToken = this.lexer.getNextToken();
+    if (this.currentToken == null) {
+      return NaN;
+    }
+
+    return this.program();
+  }
+
+  static parseExpression(stmt) {
     const parser = new Parser(stmt);
-    return parser.parseExpression();
+    return parser._parseExpression();
+  }
+
+  static parseProgram(pgm) {
+    const parser = new Parser(stmt);
+    return parser._parseProgram(pgm);
   }
 }

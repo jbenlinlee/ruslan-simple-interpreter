@@ -38,10 +38,15 @@ module.exports = class Interpreter {
     return visitor.call(this, node);
   }
 
-  static eval(stmt) {
-    const astree = Parser.parseStatement(stmt);
+  static evalStatement(stmt) {
+    const astree = Parser.parseExpression(stmt);
 
     // Use the AST to calculate the final result
+    return Interpreter.evalTree(astree);
+  }
+
+  static evalProgram(pgm) {
+    const astree = Parser.parseProgram(pgm);
     return Interpreter.evalTree(astree);
   }
 }
