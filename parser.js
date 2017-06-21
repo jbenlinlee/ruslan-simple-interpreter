@@ -121,6 +121,102 @@ module.exports = class Parser {
     }
   }
 
+  empty() {
+    return new NoopNode();
+  }
+
+  variable() {
+    let tok = this.currentToken;
+    if (this.eat(Lexer.ID)) {
+      return new VarNode(tok);
+    } else {
+      return null;
+    }
+  }
+
+  assignment_statement() {
+    let lhs = this.variable();
+    let opToken = this.currentToken;
+
+    if (lhs !== null && this.eat(Lexer.ASSIGN)) {
+      let rhs = this.expr();
+      if (rhs !== null) {
+        return new AST.AssignmentNode(lhs, opToken, rhs);
+      } else {
+        return null;
+      }
+    }
+  }
+
+  statement() {
+    switch (this.currentToken.type) {
+      case Lexer.BEGIN:
+        return this.compound_statement();
+      case Lexer.ID:
+        return this.assignment_statement();
+      default:
+        return this.empty();
+    }
+  }
+
+  statement_list() {
+    let statements = [];
+    let node = this.statement();
+
+    if (node !== null) {
+      statements.push(node);
+
+      while (this.currentToken.type === Lexer.SEMI) {
+        this.eat(Lexer.SEMI);
+        let nextStatement = this.statement();
+        if (nextStatement !== null) {
+          statements.push(nextStatement);
+        } else {
+          return null;
+        }
+      }
+
+      if (this.eat(Lexer.SEMI)) {
+        return statements;
+      } else {
+        console.log(`Error processing STATEMENT_LIST: Expected SEMI got ${this.currentToken.type}`);
+        return null;
+      }
+    }
+  }
+
+  compound_statement() {
+    let nodes = [];
+
+    if (this.eat(Lexer.BEGIN)) {
+      nodes = this.statement_list();
+      if (nodes === null) {
+        return null;
+      }
+    } else {
+      console.log(`Error processing COMPOUND: Expected BEGIN got ${this.currentToken.type}`);
+      return null;
+    }
+
+    if (this.eat(Lexer.END)) {
+      let root = new AST.CompoundStatementNode();
+      root.children = nodes;
+      return root;
+    } else {
+      console.log(`Error processing COMPOUND: Expected END got ${this.currentToken.type}`);
+      return null;
+    }
+  }
+
+  program() {
+    const node = this.compound_statement();
+    if (this.eat(Lexer.DOT)) {
+      return node;
+    } else {
+      console.log("Missing DOT");
+    }
+  }
+
   parse() {
     // Advance to the first token
     this.currentToken = this.lexer.getNextToken();
