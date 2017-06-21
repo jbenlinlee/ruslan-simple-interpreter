@@ -41,9 +41,25 @@ describe('Lexer', () => {
     });
   });
 
-  it('should return null for a non-integer, non-operator, non-parenthesis input', () => {
-    const lexer = new Lexer.Lexer("abc");
-    const tok = lexer.getNextToken();
-    assert.strictEqual(tok, null);
-  })
+  describe('Statement Handling', () => {
+    it('should return correct token for a reserved keyword', () => {
+      const lexer = new Lexer.Lexer("BEGIN");
+      let tok = lexer.getNextToken();
+      assert.equal(tok.type, Lexer.BEGIN);
+    });
+
+    it('should return an identifier token for an alphanumeric input', () => {
+      const id = "somevar"
+      const lexer = new Lexer.Lexer(id);
+      let tok = lexer.getNextToken();
+      assert.equal(tok.type, Lexer.ID);
+      assert.equal(tok.val, id);
+    });
+
+    it('should return an assignment token for :=', () => {
+      const lexer = new Lexer.Lexer(":=");
+      let tok = lexer.getNextToken();
+      assert.equal(tok.type, Lexer.ASSIGN);
+    });
+  });
 });
