@@ -3,9 +3,14 @@ const Parser = require('./parser.js');
 const AST = require('./ast.js');
 
 module.exports = class Interpreter {
-  static visit_BINOP(node) {
-    const lhs = Interpreter.evalTree(node.left);
-    const rhs = Interpreter.evalTree(node.right);
+  constructor(tree) {
+    this.tree = tree;
+    this.GLOBAL_SCOPE = {};
+  }
+
+  visit_BINOP(node) {
+    const lhs = this.evalTree(node.left);
+    const rhs = this.evalTree(node.right);
 
     switch (node.op.type) {
       case Lexer.PLUS:
@@ -19,50 +24,56 @@ module.exports = class Interpreter {
     }
   }
 
-  static visit_INTEGER(node) {
+  visit_INTEGER(node) {
     return node.val;
   }
 
-  static visit_UNARYOP(node) {
+  visit_UNARYOP(node) {
     let factor = 1;
     if (node.op.type === Lexer.MINUS) {
       factor = -1;
     }
 
-    return factor * Interpreter.evalTree(node.expr);
+    return factor * this.evalTree(node.expr);
   }
 
-  static visit_COMPOUND(node) {
-
-  }
-
-  static visit_ASSIGN(node) {
+  visit_COMPOUND(node) {
 
   }
 
-  static visit_VAR(node) {
+  visit_ASSIGN(node) {
 
   }
 
-  static visit_NOOP(node) {
+  visit_VAR(node) {
+
+  }
+
+  visit_NOOP(node) {
     return;
   }
 
   /* Evaluates AST starting from a root node */
-  static evalTree(node) {
-    const visitor = Interpreter[`visit_${node.type}`];
+  evalTree(node) {
+    const visitor = this[`visit_${node.type}`];
     return visitor.call(this, node);
+  }
+
+  eval() {
+    return this.evalTree(this.tree);
   }
 
   static evalStatement(stmt) {
     const astree = Parser.parseExpression(stmt);
 
     // Use the AST to calculate the final result
-    return Interpreter.evalTree(astree);
+    const interpreter = new Interpreter(astree);
+    return interpreter.eval();
   }
 
   static evalProgram(pgm) {
     const astree = Parser.parseProgram(pgm);
-    return Interpreter.evalTree(astree);
+    const interpreter = new Interpreter(astree);
+    return interpreter.eval();
   }
 }
