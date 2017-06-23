@@ -53,7 +53,7 @@ module.exports.AssignmentNode = class AssignmentNode {
 module.exports.VarNode = class VarNode {
   constructor(token) {
     this.token = token;
-    this.val = token.value;
+    this.val = token.val;
     this.type = VAR;
   }
 };
