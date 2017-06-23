@@ -122,13 +122,13 @@ module.exports = class Parser {
   }
 
   empty() {
-    return new NoopNode();
+    return new AST.NoopNode();
   }
 
   variable() {
     let tok = this.currentToken;
     if (this.eat(Lexer.ID)) {
-      return new VarNode(tok);
+      return new AST.VarNode(tok);
     } else {
       return null;
     }
@@ -145,6 +145,9 @@ module.exports = class Parser {
       } else {
         return null;
       }
+    } else {
+      console.log(`Error processing ASSIGNMENT_STATEMENT: Expected VARIABLE or ASSIGN, got ${this.currentToken.type}`);
+      return null;
     }
   }
 
@@ -176,12 +179,7 @@ module.exports = class Parser {
         }
       }
 
-      if (this.eat(Lexer.SEMI)) {
-        return statements;
-      } else {
-        console.log(`Error processing STATEMENT_LIST: Expected SEMI got ${this.currentToken.type}`);
-        return null;
-      }
+      return statements;
     }
   }
 
@@ -242,7 +240,7 @@ module.exports = class Parser {
   }
 
   static parseProgram(pgm) {
-    const parser = new Parser(stmt);
+    const parser = new Parser(pgm);
     return parser._parseProgram(pgm);
   }
 }

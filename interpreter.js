@@ -32,6 +32,22 @@ module.exports = class Interpreter {
     return factor * Interpreter.evalTree(node.expr);
   }
 
+  static visit_COMPOUND(node) {
+
+  }
+
+  static visit_ASSIGN(node) {
+
+  }
+
+  static visit_VAR(node) {
+
+  }
+
+  static visit_NOOP(node) {
+    return;
+  }
+
   /* Evaluates AST starting from a root node */
   static evalTree(node) {
     const visitor = Interpreter[`visit_${node.type}`];
