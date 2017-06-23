@@ -6,6 +6,16 @@ const ASSIGN = 'ASSIGN';
 const VAR = 'VAR';
 const NOOP = 'NOOP';
 
+module.exports.NodeTypes = {
+  BINOP: BINOP,
+  UNARYOP: UNARYOP,
+  INTEGER: INTEGER,
+  COMPOUND: COMPOUND,
+  ASSIGN: ASSIGN,
+  VAR: VAR,
+  NOOP: NOOP
+}
+
 module.exports.BinOpNode = class BinOpNode {
   /* left and right should be other AST nodes.
      op should be a binary operator token */

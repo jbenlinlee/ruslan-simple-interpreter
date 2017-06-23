@@ -110,4 +110,6 @@ describe('Interpreter', () => {
       testMathStatement("--4", 4);
     });
   });
+
+  describe('when handling programs', () => {});
 });
