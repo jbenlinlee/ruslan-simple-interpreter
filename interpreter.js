@@ -38,15 +38,20 @@ module.exports = class Interpreter {
   }
 
   visit_COMPOUND(node) {
+    for (let i = 0; i < node.children.length; ++i) {
+      this.evalTree(node.children[i]);
+    }
 
+    return this.GLOBAL_SCOPE;
   }
 
   visit_ASSIGN(node) {
-
+    const varName = node.left.val;
+    this.GLOBAL_SCOPE[varName] = this.evalTree(node.right);
   }
 
   visit_VAR(node) {
-
+    return this.GLOBAL_SCOPE[node.val];
   }
 
   visit_NOOP(node) {
@@ -74,6 +79,7 @@ module.exports = class Interpreter {
   static evalProgram(pgm) {
     const astree = Parser.parseProgram(pgm);
     const interpreter = new Interpreter(astree);
-    return interpreter.eval();
+    const varTable = interpreter.eval();
+    return varTable;
   }
 }
