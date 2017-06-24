@@ -21,7 +21,7 @@ describe('Interpreter', () => {
     });
 
     it('should be able to divide two integers', () => {
-      testMathStatement("12 / 4", 3);
+      testMathStatement("12 DIV 4", 3);
     });
   });
 
@@ -35,11 +35,11 @@ describe('Interpreter', () => {
     });
 
     it('should divide before adding', () => {
-      testMathStatement("20 + 12 / 3", 24); // Should be 24 and not (32 / 3)
+      testMathStatement("20 + 12 DIV 3", 24); // Should be 24 and not (32 / 3)
     });
 
     it('should divide before subtracting', () => {
-      testMathStatement("4 - 6 / 2", 1); // Should be 1 and not -1
+      testMathStatement("4 - 6 DIV 2", 1); // Should be 1 and not -1
     });
 
     it('should add and subtract from left to right', () => {
@@ -47,7 +47,7 @@ describe('Interpreter', () => {
     });
 
     it('should multiply and divide from left to right', () => {
-      testMathStatement("12 * 2 / 3", 8);
+      testMathStatement("12 * 2 DIV 3", 8);
     });
   });
 
@@ -61,15 +61,15 @@ describe('Interpreter', () => {
     });
 
     it('should evaluate leading sub-expression before division', () => {
-      testMathStatement("(24 - 10) / 7", 2); // Should be 2 and not 24 - (10 / 7)
+      testMathStatement("(24 - 10) DIV 7", 2); // Should be 2 and not 24 - (10 / 7)
     });
 
     it('should evaluate trailing sub-expression after division', () => {
-      testMathStatement("28 / (24 - 10)", 2);
+      testMathStatement("28 DIV (24 - 10)", 2);
     });
 
     it('should evaluate sub-expression within a sub-expression', () => {
-      testMathStatement("15 * ((24 - 10) / 7)", 30);
+      testMathStatement("15 * ((24 - 10) DIV 7)", 30);
     });
   });
 
@@ -99,11 +99,11 @@ describe('Interpreter', () => {
     });
 
     it('should evaluate the unary operator on the LHS factor before division', () => {
-      testMathStatement("-12 / 4", -3);
+      testMathStatement("-12 DIV 4", -3);
     });
 
     it('should evaluate the unary operator on the RHS factor before division', () => {
-      testMathStatement("12 / -4", -3);
+      testMathStatement("12 DIV -4", -3);
     });
 
     it('should handle sequences of unary operators', () => {
