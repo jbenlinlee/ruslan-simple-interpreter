@@ -44,6 +44,42 @@ describe('Parser behavior', () => {
     }
   }
 
+  function assignmentNode(lhs, rhs) {
+    return {
+      type: AST.NodeTypes.ASSIGN,
+      op: {
+        type: Lexer.ASSIGN,
+        val: ':='
+      },
+      left: lhs,
+      right: rhs
+    }
+  }
+
+  function varNode(varName) {
+    return {
+      type: AST.NodeTypes.VAR,
+      token: {
+        type: Lexer.ID,
+        val: varName
+      },
+      val: varName
+    }
+  }
+
+  function noopNode() {
+    return {
+      type: AST.NodeTypes.NOOP
+    }
+  }
+
+  function compoundStatement(statements) {
+    return {
+      type: AST.NodeTypes.COMPOUND,
+      children: statements
+    }
+  }
+
   describe('when processing expressions', () => {
     it('should return a number token for a multi-digit number', () => {
       const node = Parser.parseExpression('1234');
@@ -135,17 +171,49 @@ describe('Parser behavior', () => {
 
   describe('when processing statements', () => {
     // no-op program
-
-    it.skip('should return an assignment node for := with a constant RHS', () => {
-      const node = Parser.parseProgram('BEGIN a := 5');
-      assert.equal(node.type, AST.NodeTypes.ASSIGN);
-      assert.equal(node.right.type, AST.NodeTypes.INTEGER);
-      assert.equal(node.right.val, 5);
-      assert.equal(node.left.type, AST.NodeTypes.VAR);
-      assert.equal(node.right.val, 'a');
-    })
+    it('should return a noop for an empty program', () => {
+      const node = Parser.parseProgram('BEGIN END.');
+      const expected = compoundStatement([
+        noopNode()
+      ]);
+    });
 
     // assignment statement
-    // compound statement
+    it('should return an assignment node for := with a constant RHS', () => {
+      const node = Parser.parseProgram('BEGIN a := 5; END.');
+      const expected = compoundStatement([
+        assignmentNode(varNode('a'), integerNode(5)),
+        noopNode()
+      ]);
+
+      assert.deepEqual(node, expected);
+    });
+
+    it('should return an assignment node for := with an expression RHS', () => {
+      const node = Parser.parseProgram('BEGIN a := (5 + 2) * 3; END.');
+      const expected = compoundStatement([
+        assignmentNode(
+          varNode('a'),
+          binaryOp(
+            binaryOp(integerNode(5), integerNode(2), '+'),
+            integerNode(3),
+            '*')
+        ),
+        noopNode()
+      ]);
+
+      assert.deepEqual(node, expected);
+    });
+
+    it('should return an assignment node for := with a variable RHS', () => {
+      const node = Parser.parseProgram('BEGIN a := 100; myvar := a; END.');
+      const expected = compoundStatement([
+        assignmentNode(varNode('a'), integerNode(100)),
+        assignmentNode(varNode('myvar'), varNode('a')),
+        noopNode()
+      ]);
+
+      assert.deepEqual(node, expected);
+    });
   });
 })
