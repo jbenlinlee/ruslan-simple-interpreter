@@ -1,6 +1,6 @@
-const Parser = require('../parser.js');
-const Lexer = require('../lexer.js');
-const AST = require('../ast.js');
+const Parser = require('../lib/parser.js');
+const Lexer = require('../lib/lexer.js');
+const AST = require('../lib/ast.js');
 const assert = require('assert');
 
 /* The parser takes an expression and uses the Lexer to

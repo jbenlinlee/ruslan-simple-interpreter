@@ -1,4 +1,4 @@
-const Interpreter = require('../interpreter.js');
+const Interpreter = require('../lib/interpreter.js');
 const assert = require('assert');
 
 function testMathStatement(stmt, val) {
