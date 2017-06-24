@@ -123,7 +123,7 @@ module.exports.Lexer = class Lexer {
 
   idToken() {
     let id = this.scanAlphaNumeric();
-    if (ReservedWords.has(id)) {
+    if (ReservedWords.has(id.toUpperCase())) {
       return new Token(id, id);
     } else {
       return new Token(ID, id);

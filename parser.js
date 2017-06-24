@@ -17,7 +17,7 @@ module.exports = class Parser {
 
   /* Gets next token if current token is of expected type */
   eat(expectedTokenType) {
-    if (this.currentToken && this.currentToken.type == expectedTokenType) {
+    if (this.currentToken && this.currentToken.type.toUpperCase() == expectedTokenType) {
       this.currentToken = this.lexer.getNextToken();
       return true;
     } else {

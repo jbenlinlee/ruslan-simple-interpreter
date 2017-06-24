@@ -47,11 +47,11 @@ module.exports = class Interpreter {
 
   visit_ASSIGN(node) {
     const varName = node.left.val;
-    this.GLOBAL_SCOPE[varName] = this.evalTree(node.right);
+    this.GLOBAL_SCOPE[varName.toUpperCase()] = this.evalTree(node.right);
   }
 
   visit_VAR(node) {
-    return this.GLOBAL_SCOPE[node.val];
+    return this.GLOBAL_SCOPE[node.val.toUpperCase()];
   }
 
   visit_NOOP(node) {
