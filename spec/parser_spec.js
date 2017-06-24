@@ -80,6 +80,22 @@ describe('Parser behavior', () => {
     }
   }
 
+  function block(compound) {
+    return {
+      type: AST.NodeTypes.BLOCK,
+      declarations: [],
+      compoundStatement: compound
+    }
+  }
+
+  function program(name, block) {
+    return {
+      type: AST.NodeTypes.PROGRAM,
+      name: name,
+      block: block
+    }
+  }
+
   describe('when processing expressions', () => {
     it('should return a number token for a multi-digit number', () => {
       const node = Parser.parseExpression('1234');
@@ -173,25 +189,24 @@ describe('Parser behavior', () => {
     // no-op program
     it('should return a noop for an empty program', () => {
       const node = Parser.parseProgram('PROGRAM test; BEGIN END.');
-      const expected = compoundStatement([
-        noopNode()
-      ]);
+      const expected = program('test', block(compoundStatement([noopNode()])));
+      assert.deepEqual(node, expected);
     });
 
     // assignment statement
     it('should return an assignment node for := with a constant RHS', () => {
       const node = Parser.parseProgram('PROGRAM test; BEGIN a := 5; END.');
-      const expected = compoundStatement([
+      const expected = program('test', block(compoundStatement([
         assignmentNode(varNode('a'), integerNode(5)),
         noopNode()
-      ]);
+      ])));
 
       assert.deepEqual(node, expected);
     });
 
     it('should return an assignment node for := with an expression RHS', () => {
       const node = Parser.parseProgram('PROGRAM test; BEGIN a := (5 + 2) * 3; END.');
-      const expected = compoundStatement([
+      const expected = program('test', block(compoundStatement([
         assignmentNode(
           varNode('a'),
           binaryOp(
@@ -200,18 +215,18 @@ describe('Parser behavior', () => {
             '*')
         ),
         noopNode()
-      ]);
+      ])));
 
       assert.deepEqual(node, expected);
     });
 
     it('should return an assignment node for := with a variable RHS', () => {
       const node = Parser.parseProgram('PROGRAM test; BEGIN a := 100; myvar := a; END.');
-      const expected = compoundStatement([
+      const expected = program('test', block(compoundStatement([
         assignmentNode(varNode('a'), integerNode(100)),
         assignmentNode(varNode('myvar'), varNode('a')),
         noopNode()
-      ]);
+      ])));
 
       assert.deepEqual(node, expected);
     });
