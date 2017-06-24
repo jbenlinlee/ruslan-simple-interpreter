@@ -6,14 +6,14 @@ describe('Lexer', () => {
     it('should read a single-digit integer', () => {
       const lexer = new Lexer.Lexer("3");
       const tok = lexer.getNextToken();
-      assert.equal(tok.type, Lexer.TokenTypes.INTEGER);
+      assert.equal(tok.type, Lexer.TokenTypes.INTEGER_CONST);
       assert.equal(tok.val, 3);
     });
 
     it('should read a multi-digit integer', () => {
       const lexer = new Lexer.Lexer("456");
       const tok = lexer.getNextToken();
-      assert.equal(tok.type, Lexer.TokenTypes.INTEGER);
+      assert.equal(tok.type, Lexer.TokenTypes.INTEGER_CONST);
       assert.equal(tok.val, 456);
     });
   });
@@ -22,7 +22,7 @@ describe('Lexer', () => {
     it('should skip leading whitespace', () => {
       const lexer = new Lexer.Lexer("  890");
       const tok = lexer.getNextToken();
-      assert.equal(tok.type, Lexer.TokenTypes.INTEGER);
+      assert.equal(tok.type, Lexer.TokenTypes.INTEGER_CONST);
       assert.equal(tok.val, 890);
     });
 
@@ -36,7 +36,7 @@ describe('Lexer', () => {
     it('should skip trailing whitespace', () => {
       const lexer = new Lexer.Lexer("890 ");
       const tok = lexer.getNextToken();
-      assert.equal(tok.type, Lexer.TokenTypes.INTEGER);
+      assert.equal(tok.type, Lexer.TokenTypes.INTEGER_CONST);
       assert.equal(tok.val, 890);
     });
   });
