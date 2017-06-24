@@ -48,7 +48,7 @@ describe('Parser behavior', () => {
     return {
       type: AST.NodeTypes.ASSIGN,
       op: {
-        type: Lexer.ASSIGN,
+        type: Lexer.TokenTypes.ASSIGN,
         val: ':='
       },
       left: lhs,
@@ -60,7 +60,7 @@ describe('Parser behavior', () => {
     return {
       type: AST.NodeTypes.VAR,
       token: {
-        type: Lexer.ID,
+        type: Lexer.TokenTypes.ID,
         val: varName
       },
       val: varName
@@ -172,7 +172,7 @@ describe('Parser behavior', () => {
   describe('when processing statements', () => {
     // no-op program
     it('should return a noop for an empty program', () => {
-      const node = Parser.parseProgram('BEGIN END.');
+      const node = Parser.parseProgram('PROGRAM test; BEGIN END.');
       const expected = compoundStatement([
         noopNode()
       ]);
@@ -180,7 +180,7 @@ describe('Parser behavior', () => {
 
     // assignment statement
     it('should return an assignment node for := with a constant RHS', () => {
-      const node = Parser.parseProgram('BEGIN a := 5; END.');
+      const node = Parser.parseProgram('PROGRAM test; BEGIN a := 5; END.');
       const expected = compoundStatement([
         assignmentNode(varNode('a'), integerNode(5)),
         noopNode()
@@ -190,7 +190,7 @@ describe('Parser behavior', () => {
     });
 
     it('should return an assignment node for := with an expression RHS', () => {
-      const node = Parser.parseProgram('BEGIN a := (5 + 2) * 3; END.');
+      const node = Parser.parseProgram('PROGRAM test; BEGIN a := (5 + 2) * 3; END.');
       const expected = compoundStatement([
         assignmentNode(
           varNode('a'),
@@ -206,7 +206,7 @@ describe('Parser behavior', () => {
     });
 
     it('should return an assignment node for := with a variable RHS', () => {
-      const node = Parser.parseProgram('BEGIN a := 100; myvar := a; END.');
+      const node = Parser.parseProgram('PROGRAM test; BEGIN a := 100; myvar := a; END.');
       const expected = compoundStatement([
         assignmentNode(varNode('a'), integerNode(100)),
         assignmentNode(varNode('myvar'), varNode('a')),

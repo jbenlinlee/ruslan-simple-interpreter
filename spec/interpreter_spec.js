@@ -118,19 +118,19 @@ describe('Interpreter', () => {
 
   describe('when handling programs', () => {
     it('should evaluate a basic assignment to a static value correctly', () => {
-      testProgram('BEGIN a := 5; END.', {A: 5});
+      testProgram('PROGRAM test; BEGIN a := 5; END.', {A: 5});
     });
 
     it('should evaluate a basic assignment to an expression RHS correctly', () => {
-      testProgram('BEGIN a := 5 + 2 * 3; END.', {A: 11});
+      testProgram('PROGRAM test; BEGIN a := 5 + 2 * 3; END.', {A: 11});
     });
 
     it('should evaluate assigning a var to another var correctly', () => {
-      testProgram('BEGIN var1 := 10; var2 := var1; END.', {VAR1: 10, VAR2: 10});
+      testProgram('PROGRAM test; BEGIN var1 := 10; var2 := var1; END.', {VAR1: 10, VAR2: 10});
     });
 
     it('should evaluate assigning an expression using a var to another var correctly', () => {
-      testProgram('BEGIN var1 := 3; var2 := (var1 + 5) * 10; END.', {VAR1: 3, VAR2: 80});
+      testProgram('PROGRAM test; BEGIN var1 := 3; var2 := (var1 + 5) * 10; END.', {VAR1: 3, VAR2: 80});
     });
   });
 });

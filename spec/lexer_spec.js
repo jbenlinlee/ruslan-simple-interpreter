@@ -42,10 +42,22 @@ describe('Lexer', () => {
   });
 
   describe('Statement Handling', () => {
-    it('should return correct token for a reserved keyword', () => {
+    it('should return correct token for reserved keyword BEGIN', () => {
       const lexer = new Lexer.Lexer("BEGIN");
       let tok = lexer.getNextToken();
       assert.equal(tok.type, Lexer.TokenTypes.BEGIN);
+    });
+
+    it('should return correct token for reserved keyword END', () => {
+      const lexer = new Lexer.Lexer("END");
+      let tok = lexer.getNextToken();
+      assert.equal(tok.type, Lexer.TokenTypes.END);
+    });
+
+    it('should return correct token for reserved keyword PROGRAM', () => {
+      const lexer = new Lexer.Lexer("PROGRAM");
+      let tok = lexer.getNextToken();
+      assert.equal(tok.type, Lexer.TokenTypes.PROGRAM);
     });
 
     it('should return an identifier token for an alphanumeric input', () => {
