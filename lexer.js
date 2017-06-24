@@ -4,7 +4,7 @@ const INTEGER = 'INTEGER';
 const PLUS = 'PLUS';
 const MINUS = 'MINUS';
 const MULTIPLY = 'MULTIPLY';
-const DIVIDE = 'DIVIDE';
+const DIVIDE = 'DIV';
 const SUBEXPR_START = '(';
 const SUBEXPR_END = ')';
 const EOF = 'EOF';
@@ -19,15 +19,12 @@ const OperatorCharacterMap = new Map();
 OperatorCharacterMap.set('+', PLUS);
 OperatorCharacterMap.set('-', MINUS);
 OperatorCharacterMap.set('*', MULTIPLY);
-OperatorCharacterMap.set('/', DIVIDE);
 
 const SubExprCharacterMap = new Map();
 SubExprCharacterMap.set('(', SUBEXPR_START);
 SubExprCharacterMap.set(')', SUBEXPR_END);
 
-const ReservedWords = new Set();
-ReservedWords.add(BEGIN);
-ReservedWords.add(END);
+const ReservedWords = new Set([BEGIN, END, DIVIDE]);
 
 module.exports.INTEGER = INTEGER;
 module.exports.PLUS = PLUS;
@@ -124,7 +121,12 @@ module.exports.Lexer = class Lexer {
 
   idToken() {
     let id = this.scanAlphaNumeric();
-    if (ReservedWords.has(id.toUpperCase())) {
+    let insensitiveId = id.toUpperCase();
+
+    if (ReservedWords.has(insensitiveId)) {
+      if (insensitiveId == DIVIDE) {
+        return new Token(DIVIDE, id);
+      }
       return new Token(id, id);
     } else {
       return new Token(ID, id);
@@ -140,7 +142,7 @@ module.exports.Lexer = class Lexer {
         // Handle integers
         return new Token(INTEGER, this.scanInteger());
       } else if (OperatorCharacterMap.has(this.currentCharacter)) {
-        // Handle operators
+        // Handle single character operators
         let tok = new Token(OperatorCharacterMap.get(this.currentCharacter), this.currentCharacter);
         this.advance();
         return tok;
