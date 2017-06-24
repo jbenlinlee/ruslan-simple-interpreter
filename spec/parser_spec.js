@@ -14,7 +14,7 @@ describe('Parser behavior', () => {
     return {
       type: AST.NodeTypes.INTEGER,
       op: {
-        type: Lexer.INTEGER,
+        type: Lexer.TokenTypes.INTEGER,
         val: num
       },
       val: num
