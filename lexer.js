@@ -44,6 +44,8 @@ module.exports.ASSIGN = ASSIGN;
 module.exports.SEMI = SEMI;
 module.exports.ID = ID;
 
+module.exports.OperatorCharacterMap = OperatorCharacterMap;
+
 module.exports.Lexer = class Lexer {
   constructor(expr) {
     this.expr = expr || "";
