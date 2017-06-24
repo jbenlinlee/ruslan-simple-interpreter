@@ -1,6 +1,14 @@
 const Lexer = require('../lib/lexer.js');
 const assert = require('assert');
 
+function tokenTypeCheck(expr, expectedType) {
+  const lexer = new Lexer.Lexer(expr);
+  const tok = lexer.getNextToken();
+  assert.equal(tok.type, expectedType);
+
+  return lexer;
+}
+
 describe('Lexer', () => {
   describe('Integer Handling', () => {
     it('should read a single-digit integer', () => {
@@ -42,22 +50,56 @@ describe('Lexer', () => {
   });
 
   describe('Statement Handling', () => {
-    it('should return correct token for reserved keyword BEGIN', () => {
-      const lexer = new Lexer.Lexer("BEGIN");
-      let tok = lexer.getNextToken();
-      assert.equal(tok.type, Lexer.TokenTypes.BEGIN);
+    describe('for reserved keywords', () => {
+      it('should return correct token for reserved keyword BEGIN', () => {
+        tokenTypeCheck('BEGIN', Lexer.TokenTypes.BEGIN);
+      });
+
+      it('should return correct token for reserved keyword END', () => {
+        tokenTypeCheck('END', Lexer.TokenTypes.END);
+      });
+
+      it('should return correct token for reserved keyword PROGRAM', () => {
+        tokenTypeCheck('PROGRAM', Lexer.TokenTypes.PROGRAM);
+      });
+
+      it('should return correct token for reserved keyword VAR', () => {
+        tokenTypeCheck('VAR', Lexer.TokenTypes.VAR);
+      });
+
+      it('should return correct token for reserved keyword INTEGER', () => {
+        tokenTypeCheck('INTEGER', Lexer.TokenTypes.TYPE_INTEGER);
+      });
+
+      it('should return correct token for reserved keyword REAL', () => {
+        tokenTypeCheck('REAL', Lexer.TokenTypes.TYPE_REAL);
+      });
+
+      it('should return correct token for reserved keyword DIV', () => {
+        tokenTypeCheck('DIV', Lexer.TokenTypes.DIVIDE_INTEGER);
+      });
     });
 
-    it('should return correct token for reserved keyword END', () => {
-      const lexer = new Lexer.Lexer("END");
-      let tok = lexer.getNextToken();
-      assert.equal(tok.type, Lexer.TokenTypes.END);
-    });
+    describe('for operators', () => {
+      it('should return an assignment token for :=', () => {
+        tokenTypeCheck(':=', Lexer.TokenTypes.ASSIGN);
+      });
 
-    it('should return correct token for reserved keyword PROGRAM', () => {
-      const lexer = new Lexer.Lexer("PROGRAM");
-      let tok = lexer.getNextToken();
-      assert.equal(tok.type, Lexer.TokenTypes.PROGRAM);
+      it('should return a plus token for +', () => {
+        tokenTypeCheck('+', Lexer.TokenTypes.PLUS);
+      });
+
+      it('should return a minus token for -', () => {
+        tokenTypeCheck('-', Lexer.TokenTypes.MINUS);
+      });
+
+      it('should return a multiply token for *', () => {
+        tokenTypeCheck('*', Lexer.TokenTypes.MULTIPLY);
+      });
+
+      it('should return a DIVIDE_REAL token for /', () => {
+        tokenTypeCheck('/', Lexer.TokenTypes.DIVIDE_REAL);
+      });
     });
 
     it('should return an identifier token for an alphanumeric input', () => {
@@ -66,12 +108,6 @@ describe('Lexer', () => {
       let tok = lexer.getNextToken();
       assert.equal(tok.type, Lexer.TokenTypes.ID);
       assert.equal(tok.val, id);
-    });
-
-    it('should return an assignment token for :=', () => {
-      const lexer = new Lexer.Lexer(":=");
-      let tok = lexer.getNextToken();
-      assert.equal(tok.type, Lexer.TokenTypes.ASSIGN);
     });
   });
 });
