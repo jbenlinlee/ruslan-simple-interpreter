@@ -51,32 +51,39 @@ describe('Lexer', () => {
 
   describe('Statement Handling', () => {
     describe('for reserved keywords', () => {
-      it('should return correct token for reserved keyword BEGIN', () => {
+      it('should return correct token for reserved keyword BEGIN in a case insensitive manner', () => {
         tokenTypeCheck('BEGIN', Lexer.TokenTypes.BEGIN);
+        tokenTypeCheck('BeGiN', Lexer.TokenTypes.BEGIN);
       });
 
-      it('should return correct token for reserved keyword END', () => {
+      it('should return correct token for reserved keyword END in a case insensitive manner', () => {
         tokenTypeCheck('END', Lexer.TokenTypes.END);
+        tokenTypeCheck('EnD', Lexer.TokenTypes.END);
       });
 
-      it('should return correct token for reserved keyword PROGRAM', () => {
+      it('should return correct token for reserved keyword PROGRAM in a case insensitive manner', () => {
         tokenTypeCheck('PROGRAM', Lexer.TokenTypes.PROGRAM);
+        tokenTypeCheck('PrOgRaM', Lexer.TokenTypes.PROGRAM);
       });
 
-      it('should return correct token for reserved keyword VAR', () => {
+      it('should return correct token for reserved keyword VAR in a case insensitive manner', () => {
         tokenTypeCheck('VAR', Lexer.TokenTypes.VAR);
+        tokenTypeCheck('VaR', Lexer.TokenTypes.VAR);
       });
 
-      it('should return correct token for reserved keyword INTEGER', () => {
+      it('should return correct token for reserved keyword INTEGER in a case insensitive manner', () => {
         tokenTypeCheck('INTEGER', Lexer.TokenTypes.TYPE_INTEGER);
+        tokenTypeCheck('InTeGeR', Lexer.TokenTypes.TYPE_INTEGER);
       });
 
-      it('should return correct token for reserved keyword REAL', () => {
+      it('should return correct token for reserved keyword REAL in a case insensitive manner', () => {
         tokenTypeCheck('REAL', Lexer.TokenTypes.TYPE_REAL);
+        tokenTypeCheck('ReAl', Lexer.TokenTypes.TYPE_REAL);
       });
 
-      it('should return correct token for reserved keyword DIV', () => {
+      it('should return correct token for reserved keyword DIV in a case insensitive manner', () => {
         tokenTypeCheck('DIV', Lexer.TokenTypes.DIVIDE_INTEGER);
+        tokenTypeCheck('DiV', Lexer.TokenTypes.DIVIDE_INTEGER);
       });
     });
 
@@ -105,6 +112,17 @@ describe('Lexer', () => {
         tokenTypeCheck('/', Lexer.TokenTypes.DIVIDE_REAL);
       });
     });
+
+    it('should skip comments', () => {
+      const lexer = new Lexer.Lexer('1234 {hello, world} begin');
+      let tok = lexer.getNextToken();
+      assert.equal(tok.type, Lexer.TokenTypes.INTEGER_CONST);
+      assert.equal(tok.val, 1234);
+
+      // Should skip over comments and return a begin token
+      tok = lexer.getNextToken();
+      assert.equal(tok.type, Lexer.TokenTypes.BEGIN);
+    })
 
     it('should return an identifier token for an alphanumeric input', () => {
       const id = "somevar"
