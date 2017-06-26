@@ -28,6 +28,10 @@ describe('Interpreter', () => {
     it('should be able to divide two integers', () => {
       testMathStatement("12 DIV 4", 3);
     });
+
+    it('should return the integer portion of an integer division', () => {
+      testMathStatement("7 DIV 2", 3);
+    });
   });
 
   describe('when handling expressions where precedence matters', () => {
