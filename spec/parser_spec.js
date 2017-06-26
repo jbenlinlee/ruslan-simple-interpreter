@@ -80,10 +80,29 @@ describe('Parser behavior', () => {
     }
   }
 
-  function block(compound) {
+  function varType(type) {
+    return {
+      type: AST.NodeTypes.TYPEDECL,
+      tok: {
+        type: type,
+        val: type
+      },
+      val: type
+    }
+  }
+
+  function declaration(name, type) {
+    return {
+      type: AST.NodeTypes.VARDECL,
+      var: varNode(name),
+      varType: varType(type)
+    }
+  }
+
+  function block(compound, decls) {
     return {
       type: AST.NodeTypes.BLOCK,
-      declarations: [],
+      declarations: decls || [],
       compoundStatement: compound
     }
   }
@@ -230,5 +249,14 @@ describe('Parser behavior', () => {
 
       assert.deepEqual(node, expected);
     });
+
+    it('should return an integer var node', () => {
+      const node = Parser.parseProgram('PROGRAM test; VAR a:INTEGER; BEGIN END.');
+      const expected = program('test',
+        block(compoundStatement([noopNode()]),
+          [declaration('a', 'INTEGER')]));
+
+      assert.deepEqual(node, expected);
+    })
   });
 })
