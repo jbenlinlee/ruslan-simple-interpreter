@@ -85,6 +85,10 @@ describe('Lexer', () => {
         tokenTypeCheck(':=', Lexer.TokenTypes.ASSIGN);
       });
 
+      it('should return a comma token for ,', () => {
+        tokenTypeCheck(',', Lexer.TokenTypes.COMMA);
+      });
+
       it('should return a plus token for +', () => {
         tokenTypeCheck('+', Lexer.TokenTypes.PLUS);
       });
