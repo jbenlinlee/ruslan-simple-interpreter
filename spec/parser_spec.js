@@ -212,6 +212,12 @@ describe('Parser behavior', () => {
       assert.deepEqual(node, expected);
     });
 
+    it('should return a noop for an empty program with comments', () => {
+      const node = Parser.parseProgram('PROGRAM test; BEGIN {hello, world} END.');
+      const expected = program('test', block(compoundStatement([noopNode()])));
+      assert.deepEqual(node, expected);
+    })
+
     // assignment statement
     it('should return an assignment node for := with a constant RHS', () => {
       const node = Parser.parseProgram('PROGRAM test; BEGIN a := 5; END.');
