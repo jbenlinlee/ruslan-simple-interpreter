@@ -32,6 +32,14 @@ describe('Interpreter', () => {
     it('should return the integer portion of an integer division', () => {
       testMathStatement("7 DIV 2", 3);
     });
+
+    it('should return a floating point result for floating point division with integer inputs', () => {
+      testMathStatement("10 / 4", 2.5);
+    });
+
+    it('should return a floating point result for floating point division floating point inputs', () => {
+      testMathStatement("6.25 / 2.0", 3.125);
+    });
   });
 
   describe('when handling expressions where precedence matters', () => {
