@@ -24,6 +24,13 @@ describe('Lexer', () => {
       assert.equal(tok.type, Lexer.TokenTypes.INTEGER_CONST);
       assert.equal(tok.val, 456);
     });
+
+    it('should read a real constant', () => {
+      const lexer = new Lexer.Lexer("123.456");
+      const tok = lexer.getNextToken();
+      assert.equal(tok.type, Lexer.TokenTypes.REAL_CONST);
+      assert.equal(tok.val, 123.456);
+    })
   });
 
   describe('Whitespace Handling', () => {
