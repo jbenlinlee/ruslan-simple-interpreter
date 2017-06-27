@@ -129,7 +129,19 @@ describe('Lexer', () => {
       // Should skip over comments and return a begin token
       tok = lexer.getNextToken();
       assert.equal(tok.type, Lexer.TokenTypes.BEGIN);
-    })
+    });
+
+    it('should skip a series of consecutive comments', () => {
+      const lexer = new Lexer.Lexer('{this is}{a series}{of comments}');
+      let tok = lexer.getNextToken();
+      assert.equal(tok.type, Lexer.TokenTypes.EOF);
+    });
+
+    it('should skip a series of whitespace separated comments', () => {
+      const lexer = new Lexer.Lexer('{this is} {a series} {of comments}');
+      let tok = lexer.getNextToken();
+      assert.equal(tok.type, Lexer.TokenTypes.EOF);
+    });
 
     it('should return an identifier token for an alphanumeric input', () => {
       const id = "somevar"
