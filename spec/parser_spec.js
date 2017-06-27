@@ -21,6 +21,17 @@ describe('Parser behavior', () => {
     }
   }
 
+  function realNode(num) {
+    return {
+      type: AST.NodeTypes.REAL,
+      op: {
+        type: Lexer.TokenTypes.REAL_CONST,
+        val: num
+      },
+      val: num
+    }
+  }
+
   function binaryOp(lhs, rhs, opVal) {
     return {
       type: AST.NodeTypes.BINOP,
@@ -123,11 +134,27 @@ describe('Parser behavior', () => {
       assert.deepEqual(node, expected);
     });
 
+    it('should return a real token for a real value', () => {
+      const node = Parser.parseExpression('123.456');
+      const expected = realNode(123.456);
+      assert.deepEqual(node, expected);
+    });
+
     // binary operation
     it('should return a binary operation node with integer RHS and LHS', () => {
       const node = Parser.parseExpression('3 * 5');
       const expected = binaryOp(
         integerNode(3),
+        integerNode(5),
+        '*');
+
+      assert.deepEqual(node, expected);
+    });
+
+    it('should return a binary operation node with integer RHS and real LHS', () => {
+      const node = Parser.parseExpression('3.14 * 5');
+      const expected = binaryOp(
+        realNode(3.14),
         integerNode(5),
         '*');
 
