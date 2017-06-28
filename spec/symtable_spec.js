@@ -47,4 +47,10 @@ describe('Symbol Table Builder', () => {
     const isValid = builder.visit(node);
     assert.equal(isValid, false);
   });
+
+  it('should return true for a program with a procedure declaration', () => {
+    const node = Parser.parseProgram('PROGRAM test; PROCEDURE myproc; BEGIN END; BEGIN END.');
+    const isValid = builder.visit(node);
+    assert.equal(isValid, true);
+  });
 });
