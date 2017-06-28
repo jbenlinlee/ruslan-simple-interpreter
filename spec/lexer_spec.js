@@ -92,6 +92,11 @@ describe('Lexer', () => {
         tokenTypeCheck('DIV', Lexer.TokenTypes.DIVIDE_INTEGER);
         tokenTypeCheck('DiV', Lexer.TokenTypes.DIVIDE_INTEGER);
       });
+
+      it('should return correct token for reserved keyword PROCEDURE in a case insensitive manner', () => {
+        tokenTypeCheck('PROCEDURE', Lexer.TokenTypes.PROCEDURE);
+        tokenTypeCheck('pRoCeDuRe', Lexer.TokenTypes.PROCEDURE);
+      });
     });
 
     describe('for operators', () => {
