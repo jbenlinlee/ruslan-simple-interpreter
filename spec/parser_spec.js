@@ -118,6 +118,14 @@ describe('Parser behavior', () => {
     }
   }
 
+  function procedure(name, block) {
+    return {
+      type: AST.NodeTypes.PROCEDURE,
+      name: name,
+      block: block
+    }
+  }
+
   function program(name, block) {
     return {
       type: AST.NodeTypes.PROGRAM,
@@ -306,6 +314,39 @@ describe('Parser behavior', () => {
       const expected = program('test',
         block(compoundStatement([noopNode()]),
           [declaration('a', 'INTEGER'), declaration('b', 'REAL')]));
+
+      assert.deepEqual(node, expected);
+    });
+
+    it('should return procedure nodes with no var nodes', () => {
+      const node = Parser.parseProgram('PROGRAM test; PROCEDURE proc1; BEGIN END; BEGIN END.');
+      const expected = program('test',
+        block(compoundStatement([noopNode()]),
+          [procedure('proc1',
+            block(compoundStatement([noopNode()])))]
+        ));
+
+      assert.deepEqual(node, expected);
+    });
+
+    it('should return procedure nodes with an assignment alongside var nodes', () => {
+      const node = Parser.parseProgram('PROGRAM test; VAR a : INTEGER; PROCEDURE proc1; BEGIN a := 5 END; BEGIN END.');
+      const expected = program(
+        'test',
+        block(
+          compoundStatement([noopNode()]),
+          [
+            declaration('a', 'INTEGER'),
+            procedure(
+              'proc1',
+              block(
+                compoundStatement([
+                  assignmentNode(varNode('a'), integerNode(5))
+                ])
+              )
+          )]
+        )
+      );
 
       assert.deepEqual(node, expected);
     });
