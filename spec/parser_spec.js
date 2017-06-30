@@ -36,7 +36,7 @@ describe('Parser behavior', () => {
     return {
       type: AST.NodeTypes.BINOP,
       op: {
-        type: Lexer.OperatorCharacterMap.get(opVal),
+        type: Lexer.LexemeTokenMap.get(opVal),
         val: opVal
       },
       left: lhs,
@@ -48,7 +48,7 @@ describe('Parser behavior', () => {
     return {
       type: AST.NodeTypes.UNARYOP,
       op: {
-        type: Lexer.OperatorCharacterMap.get(opVal),
+        type: Lexer.LexemeTokenMap.get(opVal),
         val: opVal
       },
       expr: operand
