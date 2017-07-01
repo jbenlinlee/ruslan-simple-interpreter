@@ -118,11 +118,20 @@ describe('Parser behavior', () => {
     }
   }
 
-  function procedure(name, block) {
+  function procedure(name, params, block) {
     return {
       type: AST.NodeTypes.PROCEDURE,
       name: name,
+      params: params,
       block: block
+    }
+  }
+
+  function parameter(varNode, typeNode) {
+    return {
+      type: AST.NodeTypes.PARAMETER,
+      var: varNode,
+      type: typeNode
     }
   }
 
@@ -323,6 +332,7 @@ describe('Parser behavior', () => {
       const expected = program('test',
         block(compoundStatement([noopNode()]),
           [procedure('proc1',
+            [],
             block(compoundStatement([noopNode()])))]
         ));
 
@@ -339,6 +349,7 @@ describe('Parser behavior', () => {
             declaration('a', 'INTEGER'),
             procedure(
               'proc1',
+              [],
               block(
                 compoundStatement([
                   assignmentNode(varNode('a'), integerNode(5))
