@@ -32,4 +32,10 @@ describe('Semantic Analyzer', () => {
     const isValid = builder.visit(node);
     assert.equal(isValid, true);
   });
+
+  it('should return false for a program with a var defined twice', () => {
+    const node = Parser.parseProgram('PROGRAM test; VAR x : INTEGER; x : REAL; BEGIN END.');
+    const isValid = builder.visit(node);
+    assert.equal(isValid, false);
+  });
 });
