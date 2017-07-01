@@ -361,5 +361,52 @@ describe('Parser behavior', () => {
 
       assert.deepEqual(node, expected);
     });
+
+    it('should return procedure nodes with one formal parameter specified', () => {
+      const node = Parser.parseProgram('PROGRAM test; PROCEDURE proc1(a:INTEGER); BEGIN END; BEGIN END.');
+      const expected = program(
+        'test',
+        block(
+          compoundStatement([noopNode()]),
+          [
+            procedure(
+              'proc1',
+              [
+                parameter(varNode('a'), varType('INTEGER'))
+              ],
+              block(
+                compoundStatement([noopNode()])
+              )
+            )
+          ]
+        )
+      );
+
+      assert.deepEqual(node, expected);
+    });
+
+    it('should return procedure nodes with more than one formal parameter specified', () => {
+      const node = Parser.parseProgram('PROGRAM test; PROCEDURE proc1(a:INTEGER; b:REAL); BEGIN END; BEGIN END.');
+      const expected = program(
+        'test',
+        block(
+          compoundStatement([noopNode()]),
+          [
+            procedure(
+              'proc1',
+              [
+                parameter(varNode('a'), varType('INTEGER')),
+                parameter(varNode('b'), varType('REAL'))
+              ],
+              block(
+                compoundStatement([noopNode()])
+              )
+            )
+          ]
+        )
+      );
+
+      assert.deepEqual(node, expected);
+    });
   });
-})
+});
