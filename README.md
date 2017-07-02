@@ -1,3 +1,6 @@
+This repo contains code related to [Ruslan Spivak's "Let's Build a Simple Interpreter"
+series](https://ruslanspivak.com/lsbasi-part1/).
+
 # BNF
 ```
 program : variable SEMI block DOT
