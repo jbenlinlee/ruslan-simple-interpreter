@@ -38,4 +38,16 @@ describe('Semantic Analyzer', () => {
     const isValid = builder.visit(node);
     assert.equal(isValid, false);
   });
+
+  it('should return true for a program with a procedure that uses a local scoped var', () => {
+    const node = Parser.parseProgram('PROGRAM test; PROCEDURE myproc; VAR x : INTEGER; BEGIN x := 5; END; BEGIN END.');
+    const isValid = builder.visit(node);
+    assert.equal(isValid, true);
+  });
+
+  it('should return true for a program with a procedure that uses a procedure param', () => {
+    const node = Parser.parseProgram('PROGRAM test; PROCEDURE myproc(a : INTEGER); VAR x : INTEGER; BEGIN x := a; END; BEGIN END.');
+    const isValid = builder.visit(node);
+    assert.equal(isValid, true);
+  });
 });
