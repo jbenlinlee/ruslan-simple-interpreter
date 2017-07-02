@@ -68,4 +68,14 @@ describe('Semantic Analyzer', () => {
     const isValid = builder.visit(node);
     assert.equal(isValid, false);
   });
+
+  it('should create a symbol table containing INTEGER and REAL builtins as well as program name', () => {
+    const node = Parser.parseProgram('PROGRAM test; BEGIN END.');
+    const isValid = builder.visit(node);
+
+    assert.equal(isValid, true);
+    assert.notStrictEqual(builder.rootScope.lookup('INTEGER'), undefined);
+    assert.notStrictEqual(builder.rootScope.lookup('REAL'), undefined);
+    assert.notStrictEqual(builder.rootScope.lookup('test'), undefined);
+  });
 });
