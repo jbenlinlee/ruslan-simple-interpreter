@@ -57,6 +57,12 @@ describe('Semantic Analyzer', () => {
     assert.equal(isValid, true);
   });
 
+  it('should return true even if a local scoped var masks a parent scoped var', () => {
+    const node = Parser.parseProgram('PROGRAM test; VAR x : REAL; PROCEDURE myproc; VAR x : INTEGER; BEGIN END; BEGIN END.');
+    const isValid = builder.visit(node);
+    assert.equal(isValid, true);
+  });
+
   it('should return false for a program that tries to refer to a var outside of scope', () => {
     const node = Parser.parseProgram('PROGRAM test; VAR x : REAL; PROCEDURE myproc; VAR a : REAL; BEGIN END; BEGIN x := a; END.');
     const isValid = builder.visit(node);
