@@ -50,4 +50,16 @@ describe('Semantic Analyzer', () => {
     const isValid = builder.visit(node);
     assert.equal(isValid, true);
   });
+
+  it('should return true for a program with a procedure that refers to a var in parent scope', () => {
+    const node = Parser.parseProgram('PROGRAM test; VAR x : REAL; PROCEDURE myproc; VAR a : REAL; BEGIN a := x; END; BEGIN END.');
+    const isValid = builder.visit(node);
+    assert.equal(isValid, true);
+  });
+
+  it('should return false for a program that tries to refer to a var outside of scope', () => {
+    const node = Parser.parseProgram('PROGRAM test; VAR x : REAL; PROCEDURE myproc; VAR a : REAL; BEGIN END; BEGIN x := a; END.');
+    const isValid = builder.visit(node);
+    assert.equal(isValid, false);
+  });
 });
