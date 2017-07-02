@@ -11,15 +11,12 @@ describe('Symbol Table', () => {
     tbl = new Symtable.SymbolTable();
   });
 
-  it('should return INTEGER builtin type symbol', () => {
-    const intBuiltin = tbl.lookup(AST.NodeTypes.INTEGER);
-    assert.equal(intBuiltin instanceof Symtable.BuiltinTypeSymbol, true);
-    assert.equal(intBuiltin.name, AST.NodeTypes.INTEGER);
-  });
+  it('should be able to save and return a symbol', () => {
+    const symbol_name = 'someSymbol';
+    const newSymbol = new Symtable.Symbol(symbol_name);
+    tbl.define(newSymbol);
 
-  it('should return REAL builtin type symbol', () => {
-    const realBuiltin = tbl.lookup(AST.NodeTypes.REAL);
-    assert.equal(realBuiltin instanceof Symtable.BuiltinTypeSymbol, true);
-    assert.equal(realBuiltin.name, AST.NodeTypes.REAL);
+    const retrievedSymbol = tbl.lookup(symbol_name);
+    assert.equal(retrievedSymbol, newSymbol);
   });
 });
