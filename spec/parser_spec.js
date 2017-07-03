@@ -67,6 +67,14 @@ describe('Parser behavior', () => {
     }
   }
 
+  function procedureCallNode(procName, params) {
+    return {
+      type: AST.NodeTypes.PROCEDURECALL,
+      name: procName,
+      params: params
+    }
+  }
+
   function varNode(varName) {
     return {
       type: AST.NodeTypes.VAR,
@@ -289,6 +297,9 @@ describe('Parser behavior', () => {
       assert.deepEqual(node, expected);
     });
 
+  });
+
+  describe('when processing declarations', () => {
     it('should return an assignment node for := with a variable RHS', () => {
       const node = Parser.parseProgram('PROGRAM test; BEGIN a := 100; myvar := a; END.');
       const expected = program('test', block(compoundStatement([
@@ -397,6 +408,60 @@ describe('Parser behavior', () => {
               [
                 parameter(varNode('a'), varType('INTEGER')),
                 parameter(varNode('b'), varType('REAL'))
+              ],
+              block(
+                compoundStatement([noopNode()])
+              )
+            )
+          ]
+        )
+      );
+
+      assert.deepEqual(node, expected);
+    });
+  });
+
+  describe('when processing procedure call statements', () => {
+    it('should return procedure call nodes with no parameters', () => {
+      const node = Parser.parseProgram('PROGRAM test; PROCEDURE proc1; BEGIN END; BEGIN proc1 END.');
+      const expected = program(
+        'test',
+        block(
+          compoundStatement([
+            procedureCallNode('proc1', [])
+          ]),
+          [
+            procedure(
+              'proc1',
+              [],
+              block(
+                compoundStatement([noopNode()])
+              )
+            )
+          ]
+        )
+      );
+
+      assert.deepEqual(node, expected);
+    });
+
+    it('should return procedure call nodes with parameters', () => {
+      const node = Parser.parseProgram('PROGRAM test; PROCEDURE proc1(a : INTEGER; b : INTEGER); BEGIN END; BEGIN proc1(4, 5) END.');
+      const expected = program(
+        'test',
+        block(
+          compoundStatement([
+            procedureCallNode('proc1', [
+              integerNode(4),
+              integerNode(5)
+            ])
+          ]),
+          [
+            procedure(
+              'proc1',
+              [
+                parameter(varNode('a'), varType('INTEGER')),
+                parameter(varNode('b'), varType('INTEGER'))
               ],
               block(
                 compoundStatement([noopNode()])
