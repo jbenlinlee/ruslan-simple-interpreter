@@ -11,7 +11,7 @@ declarations : VAR (variable_declaration SEMI)+ (procedure_declaration)*
              | (procedure_declaration)*
              | empty
 
-procedure_declaration : PROCEDURE ID SEMI block SEMI
+procedure_declaration : PROCEDURE ID (LPAREN formal_parameter_declaration (SEMI formal_parameter_declaration)* RPAREN)? SEMI block SEMI
 
 variable_declaration : ID (COMMA ID)* COLON type_spec
 
@@ -24,11 +24,16 @@ statement_list : statement
 
 statement : compound_statement
           | assignment_statement
+          | procedure_call
           | empty
 
 assignment_statement : variable ASSIGN expr
 
+procedure_call : procedure (LPAREN expr (COMMA expr)* RPAREN)?
+
 variable : ID
+
+procedure : ID
 
 expr : term ((ADD | SUB) term)*
 
