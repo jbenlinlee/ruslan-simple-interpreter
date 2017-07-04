@@ -84,4 +84,48 @@ describe('Semantic Analyzer', () => {
       assert.notStrictEqual(builder.rootScope.lookup('test'), undefined);
     });
   });
+
+  describe('when handling procedure calls', () => {
+    it('should return true for a program with a valid procedure call', () => {
+      const node = Parser.parseProgram('PROGRAM test; PROCEDURE myproc; BEGIN END; BEGIN myproc; END.');
+      const isValid = builder.visit(node);
+
+      assert.equal(isValid, true);
+    });
+
+    it('should return false if a procedure call is for an undefined procedure', () => {
+      const node = Parser.parseProgram('PROGRAM test; PROCEDURE someproc; BEGIN END; BEGIN myproc; END.');
+      const isValid = builder.visit(node);
+
+      assert.equal(isValid, false);
+    });
+
+    it('should return false if a procedure call is for something other than a procedure', () => {
+      const node = Parser.parseProgram('PROGRAM test; VAR x : INTEGER; BEGIN x; END.');
+      const isValid = builder.visit(node);
+
+      assert.equal(isValid, false);
+    });
+
+    it('should return true for a procedure call with valid const arguments', () => {
+      const node = Parser.parseProgram('PROGRAM test; PROCEDURE myproc(a : INTEGER); BEGIN END; BEGIN myproc(5); END.');
+      const isValid = builder.visit(node);
+
+      assert.equal(isValid, true);
+    });
+
+    it('should return true for a procedure call with valid var arguments', () => {
+      const node = Parser.parseProgram('PROGRAM test; VAR x : INTEGER; PROCEDURE myproc(a : INTEGER); BEGIN END; BEGIN myproc(x); END.');
+      const isValid = builder.visit(node);
+
+      assert.equal(isValid, true);
+    });
+
+    it('should return false for a procedure call with invalid var arguments', () => {
+      const node = Parser.parseProgram('PROGRAM test; VAR x : INTEGER; PROCEDURE myproc(a : INTEGER); BEGIN END; BEGIN myproc(y); END.');
+      const isValid = builder.visit(node);
+
+      assert.equal(isValid, false);
+    });
+  });
 });
