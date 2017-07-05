@@ -144,5 +144,13 @@ describe('Interpreter', () => {
     it('should evaluate assigning an expression using a var to another var correctly', () => {
       testProgram('PROGRAM test; VAR var1, var2 : INTEGER; BEGIN var1 := 3; var2 := (var1 + 5) * 10; END.', {VAR1: 3, VAR2: 80});
     });
+
+    it('should reflect changes in vars made during a procedure call', () => {
+      testProgram('PROGRAM test; VAR var1 : INTEGER; PROCEDURE myproc(a : INTEGER); BEGIN var1 := 2 * a; END; BEGIN myproc(3); END.', {VAR1: 6});
+    });
+
+    it('should not reflect changes to masked vars made during a procedure call', () => {
+      testProgram('PROGRAM test; VAR var1 : INTEGER; PROCEDURE myproc; VAR var1 : INTEGER; BEGIN var1 := 5 END; BEGIN var1 := 3; myproc; END.', {VAR1: 3});
+    })
   });
 });
