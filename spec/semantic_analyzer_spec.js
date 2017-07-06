@@ -27,6 +27,42 @@ describe('Semantic Analyzer', () => {
       const isValid = builder.visit(node);
       assert.equal(isValid, false);
     });
+
+    it('should return true for a program that assigns an integer const to an integer var', () => {
+      const node = Parser.parseProgram('PROGRAM test; VAR a : INTEGER; BEGIN a := 10; END.');
+      const isValid = builder.visit(node);
+      assert.equal(isValid, true);
+    });
+
+    it('should return false for a program that assigns a real const to an integer var', () => {
+      const node = Parser.parseProgram('PROGRAM test; VAR a : INTEGER; BEGIN a := 5.0; END.');
+      const isValid = builder.visit(node);
+      assert.equal(isValid, false);
+    });
+
+    it('should return true for a program that assigns a real const to a real var', () => {
+      const node = Parser.parseProgram('PROGRAM test; VAR a : REAL; BEGIN a := 5.0; END.');
+      const isValid = builder.visit(node);
+      assert.equal(isValid, true);
+    });
+
+    it('should return false for a program that assigns an integer const to a real var', () => {
+      const node = Parser.parseProgram('PROGRAM test; VAR a : REAL; BEGIN a := 5; END.');
+      const isValid = builder.visit(node);
+      assert.equal(isValid, false);
+    });
+
+    it('should return true for a program that assigns a real expression to a real var', () => {
+      const node = Parser.parseProgram('PROGRAM test; VAR a : REAL; BEGIN a := 5.0 / 3; END.');
+      const isValid = builder.visit(node);
+      assert.equal(isValid, true);
+    });
+
+    it('should return false for a program that assigns a real expression to an integer var', () => {
+      const node = Parser.parseProgram('PROGRAM test; VAR a : INTEGER; BEGIN a := 5.0 / 3; END.');
+      const isValid = builder.visit(node);
+      assert.equal(isValid, false);
+    });
   });
 
   describe('when handling declarations', () => {
