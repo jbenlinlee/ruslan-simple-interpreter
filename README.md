@@ -41,8 +41,11 @@ procedure : ID
 boolean_expr : relational_expr ((NOT | AND | OR | XOR) relational_expr)*
 
 relational_expr : expr (LT | GT | EQ | LEQ | GEQ | NEQ) expr
-                | BOOLEAN_CONST
                 | LPAREN boolean_expr RPAREN
+                | boolean_factor
+
+boolean_factor : NOT boolean_factor
+               | BOOLEAN_CONST
 
 expr : term ((ADD | SUB) term)*
 
