@@ -25,15 +25,24 @@ statement_list : statement
 statement : compound_statement
           | assignment_statement
           | procedure_call
+          | conditional_statement
           | empty
 
 assignment_statement : variable ASSIGN expr
 
 procedure_call : procedure (LPAREN expr (COMMA expr)* RPAREN)?
 
+conditional_statement : IF boolean_expr THEN statement (ELSE statement)?
+
 variable : ID
 
 procedure : ID
+
+boolean_expr : relational_expr ((NOT | AND | OR | XOR) relational_expr)*
+
+relational_expr : expr (LT | GT | EQ | LEQ | GEQ | NEQ) expr
+                | BOOLEAN_CONST
+                | LPAREN boolean_expr RPAREN
 
 expr : term ((ADD | SUB) term)*
 
