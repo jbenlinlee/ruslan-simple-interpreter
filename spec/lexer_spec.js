@@ -56,6 +56,22 @@ describe('Lexer', () => {
     });
   });
 
+  describe('Boolean Expression Handling', () => {
+    it('should produce a BOOLEAN_CONST token for "true"', () => {
+      const lexer = new Lexer.Lexer("true");
+      const tok = lexer.getNextToken();
+      assert.equal(tok.type, Lexer.TokenTypes.BOOLEAN_CONST);
+      assert.equal(tok.val, true);
+    });
+
+    it('should produce a BOOLEAN_CONST token for "FALSE"', () => {
+      const lexer = new Lexer.Lexer('false');
+      const tok = lexer.getNextToken();
+      assert.equal(tok.type, Lexer.TokenTypes.BOOLEAN_CONST);
+      assert.equal(tok.val, false);
+    });
+  });
+
   describe('Statement Handling', () => {
     describe('for reserved keywords', () => {
       it('should return correct token for reserved keyword BEGIN in a case insensitive manner', () => {
