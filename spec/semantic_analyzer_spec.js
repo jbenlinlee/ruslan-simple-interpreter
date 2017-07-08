@@ -27,7 +27,9 @@ describe('Semantic Analyzer', () => {
       const isValid = builder.visit(node);
       assert.equal(isValid, false);
     });
+  });
 
+  describe('when checking types', () => {
     it('should return true for a program that assigns an integer const to an integer var', () => {
       const node = Parser.parseProgram('PROGRAM test; VAR a : INTEGER; BEGIN a := 10; END.');
       const isValid = builder.visit(node);
