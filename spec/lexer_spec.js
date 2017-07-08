@@ -70,6 +70,30 @@ describe('Lexer', () => {
       assert.equal(tok.type, Lexer.TokenTypes.BOOLEAN_CONST);
       assert.equal(tok.val, false);
     });
+
+    it('should produce the correct token for >', () => {
+      tokenTypeCheck('>', Lexer.TokenTypes.GT);
+    });
+
+    it('should produce the correct token for <', () => {
+      tokenTypeCheck('<', Lexer.TokenTypes.LT);
+    });
+
+    it('should produce the correct token for =', () => {
+      tokenTypeCheck('=', Lexer.TokenTypes.EQ);
+    });
+
+    it('should produce the correct token for <=', () => {
+      tokenTypeCheck('<=', Lexer.TokenTypes.LEQ);
+    });
+
+    it('should produce the correct token for >=', () => {
+      tokenTypeCheck('>=', Lexer.TokenTypes.GEQ);
+    });
+
+    it('should produce the correct token for <>', () => {
+      tokenTypeCheck('<>', Lexer.TokenTypes.NEQ);
+    });
   });
 
   describe('Statement Handling', () => {
