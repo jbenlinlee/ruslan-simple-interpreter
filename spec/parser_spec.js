@@ -1,6 +1,7 @@
 const Parser = require('../lib/parser.js');
 const Lexer = require('../lib/lexer.js');
 const AST = require('../lib/ast.js');
+const Templates = require('../util/ast_template.js');
 const assert = require('assert');
 
 /* The parser takes an expression and uses the Lexer to
@@ -10,146 +11,22 @@ should test that the correct syntax tree is generated for
 input expressions */
 
 describe('Parser behavior', () => {
-  function integerNode(num) {
-    return {
-      type: AST.NodeTypes.INTEGER,
-      op: {
-        type: Lexer.TokenTypes.INTEGER_CONST,
-        val: num
-      },
-      val: num
-    }
-  }
-
-  function realNode(num) {
-    return {
-      type: AST.NodeTypes.REAL,
-      op: {
-        type: Lexer.TokenTypes.REAL_CONST,
-        val: num
-      },
-      val: num
-    }
-  }
-
-  function binaryOp(lhs, rhs, opVal) {
-    return {
-      type: AST.NodeTypes.BINOP,
-      op: {
-        type: Lexer.LexemeTokenMap.get(opVal),
-        val: opVal
-      },
-      left: lhs,
-      right: rhs
-    }
-  }
-
-  function unaryOp(operand, opVal) {
-    return {
-      type: AST.NodeTypes.UNARYOP,
-      op: {
-        type: Lexer.LexemeTokenMap.get(opVal),
-        val: opVal
-      },
-      expr: operand
-    }
-  }
-
-  function assignmentNode(lhs, rhs) {
-    return {
-      type: AST.NodeTypes.ASSIGN,
-      op: {
-        type: Lexer.TokenTypes.ASSIGN,
-        val: ':='
-      },
-      left: lhs,
-      right: rhs
-    }
-  }
-
-  function procedureCallNode(procName, params) {
-    return {
-      type: AST.NodeTypes.PROCEDURECALL,
-      name: procName,
-      params: params
-    }
-  }
-
-  function varNode(varName) {
-    return {
-      type: AST.NodeTypes.VAR,
-      token: {
-        type: Lexer.TokenTypes.ID,
-        val: varName
-      },
-      val: varName
-    }
-  }
-
-  function noopNode() {
-    return {
-      type: AST.NodeTypes.NOOP
-    }
-  }
-
-  function compoundStatement(statements) {
-    return {
-      type: AST.NodeTypes.COMPOUND,
-      children: statements
-    }
-  }
-
-  function varType(type) {
-    return {
-      type: AST.NodeTypes.TYPEDECL,
-      tok: {
-        type: type,
-        val: type
-      },
-      val: type
-    }
-  }
-
-  function declaration(name, type) {
-    return {
-      type: AST.NodeTypes.VARDECL,
-      var: varNode(name),
-      varType: varType(type)
-    }
-  }
-
-  function block(compound, decls) {
-    return {
-      type: AST.NodeTypes.BLOCK,
-      declarations: decls || [],
-      compoundStatement: compound
-    }
-  }
-
-  function procedure(name, params, block) {
-    return {
-      type: AST.NodeTypes.PROCEDURE,
-      name: name,
-      params: params,
-      block: block
-    }
-  }
-
-  function parameter(varNode, typeNode) {
-    return {
-      type: AST.NodeTypes.PARAMETER,
-      var: varNode,
-      type: typeNode
-    }
-  }
-
-  function program(name, block) {
-    return {
-      type: AST.NodeTypes.PROGRAM,
-      name: name,
-      block: block
-    }
-  }
+  // Copying in the Templates to clean up it-block code for readability
+  integerNode = Templates.integerNode;
+  realNode = Templates.realNode;
+  binaryOp = Templates.binaryOp;
+  unaryOp = Templates.unaryOp;
+  assignmentNode = Templates.assignmentNode;
+  procedureCallNode = Templates.procedureCallNode;
+  varNode = Templates.varNode;
+  noopNode = Templates.noopNode;
+  compoundStatement = Templates.compoundStatement;
+  varType = Templates.varType;
+  declaration = Templates.declaration;
+  block = Templates.block;
+  procedure = Templates.procedure;
+  parameter = Templates.parameter;
+  program = Templates.program;
 
   describe('when processing expressions', () => {
     it('should return a number token for a multi-digit number', () => {
