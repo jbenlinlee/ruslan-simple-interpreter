@@ -94,6 +94,10 @@ describe('Lexer', () => {
     it('should produce the correct token for <>', () => {
       tokenTypeCheck('<>', Lexer.TokenTypes.NEQ);
     });
+
+    it('should produce the correct token for ~', () => {
+      tokenTypeCheck('~', Lexer.TokenTypes.NOT);
+    });
   });
 
   describe('Statement Handling', () => {
