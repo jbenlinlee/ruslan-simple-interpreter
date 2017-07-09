@@ -38,7 +38,7 @@ variable : ID
 
 procedure : ID
 
-boolean_expr : relational_expr ((NOT | AND | OR | XOR) relational_expr)*
+boolean_expr : relational_expr ((AND | OR | XOR) relational_expr)*
 
 relational_expr : expr (LT | GT | EQ | LEQ | GEQ | NEQ) expr
                 | LPAREN boolean_expr RPAREN
