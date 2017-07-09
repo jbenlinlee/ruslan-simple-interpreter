@@ -44,7 +44,7 @@ relational_expr : expr (LT | GT | EQ | LEQ | GEQ | NEQ) expr
                 | LPAREN boolean_expr RPAREN
                 | boolean_factor
 
-boolean_factor : NOT boolean_factor
+boolean_factor : NOT boolean_expr
                | BOOLEAN_CONST
 
 expr : term ((ADD | SUB) term)*
