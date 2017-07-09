@@ -95,8 +95,20 @@ describe('Lexer', () => {
       tokenTypeCheck('<>', Lexer.TokenTypes.NEQ);
     });
 
-    it('should produce the correct token for ~', () => {
-      tokenTypeCheck('~', Lexer.TokenTypes.NOT);
+    it('should produce the correct token for NOT', () => {
+      tokenTypeCheck('NOT', Lexer.TokenTypes.NOT);
+    });
+
+    it('should produce the correct token for AND', () => {
+      tokenTypeCheck('AND', Lexer.TokenTypes.AND);
+    });
+
+    it('should produce the correct token for OR', () => {
+      tokenTypeCheck('OR', Lexer.TokenTypes.OR);
+    });
+
+    it('should produce the correct token for XOR', () => {
+      tokenTypeCheck('XOR', Lexer.TokenTypes.XOR);
     });
   });
 
