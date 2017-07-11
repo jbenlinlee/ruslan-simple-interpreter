@@ -23,6 +23,17 @@ module.exports.realNode = function realNode(num) {
   }
 }
 
+module.exports.booleanNode = function (bool) {
+  return {
+    type: AST.NodeTypes.BOOLEAN,
+    op: {
+      type: Lexer.TokenTypes.BOOLEAN_CONST,
+      val: bool
+    },
+    val: bool
+  }
+}
+
 module.exports.binaryOp = function binaryOp(lhs, rhs, opVal) {
   return {
     type: AST.NodeTypes.BINOP,

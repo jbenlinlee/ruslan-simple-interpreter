@@ -38,14 +38,14 @@ variable : ID
 
 procedure : ID
 
-boolean_expr : relational_expr ((AND | OR | XOR) relational_expr)*
+boolean_expr : boolean_term ((AND | OR | XOR) boolean_term)*
 
-relational_expr : expr (LT | GT | EQ | LEQ | GEQ | NEQ) expr
-                | LPAREN boolean_expr RPAREN
-                | boolean_factor
+boolean_term : boolean_factor ((LT | GT | EQ | LEQ | GEQ | NEQ) boolean_factor)*
 
 boolean_factor : NOT boolean_expr
                | BOOLEAN_CONST
+               | LPAREN boolean_expr RPAREN
+               | expr
 
 expr : term ((ADD | SUB) term)*
 
