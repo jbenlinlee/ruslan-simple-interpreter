@@ -38,23 +38,18 @@ variable : ID
 
 procedure : ID
 
-boolean_expr : boolean_term ((AND | OR | XOR) boolean_term)*
+boolean_expr : expr ((LT | GT | LEQ | GEQ | EQ | NEQ) expr)?
 
-boolean_term : boolean_factor ((LT | GT | EQ | LEQ | GEQ | NEQ) boolean_factor)*
+expr : term ((ADD | SUB | OR) term)*
 
-boolean_factor : NOT boolean_expr
-               | BOOLEAN_CONST
-               | LPAREN boolean_expr RPAREN
-               | expr
-
-expr : term ((ADD | SUB) term)*
-
-term : factor ((MUL | INTEGER_DIV | FLOAT_DIV) factor)*
+term : factor ((MUL | INTEGER_DIV | FLOAT_DIV | AND) factor)*
 
 factor : PLUS factor
        | MINUS factor
+       | NOT factor
        | INTEGER_CONST
        | REAL_CONST
-       | LPAREN expr RPAREN
+       | BOOLEAN_CONST
+       | LPAREN boolean_expr RPAREN
        | variable
 ```

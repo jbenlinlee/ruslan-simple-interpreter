@@ -206,19 +206,6 @@ describe('Parser behavior', () => {
       assert.deepEqual(node, expected);
     });
 
-    it('should correctly parse a boolean expression with a constant and a relational expression', () => {
-      const node = Parser.parseBooleanExpression('6 < 7 AND true');
-      const expected = binaryOp(
-        binaryOp(
-          integerNode(6),
-          integerNode(7),
-          '<'
-        ),
-        booleanNode(true),
-        'AND'
-      );
-    });
-
     it('should correctly parse a boolean expression with a constant and a parenthesized relational expression', () => {
       const node = Parser.parseBooleanExpression('(6 >= 7) AND true');
       const expected = binaryOp(
@@ -230,6 +217,38 @@ describe('Parser behavior', () => {
         booleanNode(true),
         'AND'
       );
+
+      assert.deepEqual(node, expected);
+    });
+
+    it('should bind NOT more highly than AND', () => {
+      const node = Parser.parseBooleanExpression('NOT true AND false');
+      const expected = binaryOp(
+        unaryOp(booleanNode(true), 'NOT'),
+        booleanNode(false),
+        'AND'
+      );
+
+      assert.deepEqual(node, expected);
+    });
+
+    it('should bind OR more highly than < or >', () => {
+      const node = Parser.parseBooleanExpression('6 < 7 OR 10 > 20');
+      const expected = binaryOp(
+        binaryOp(
+          integerNode(6),
+          binaryOp(
+            integerNode(7),
+            integerNode(10),
+            'OR'
+          ),
+          '<'
+        ),
+        integerNode(20),
+        '>'
+      );
+
+      assert.deepEqual(node, expected);
     });
   });
 
