@@ -316,6 +316,19 @@ describe('Parser behavior', () => {
       assert.deepEqual(node, expected);
     });
 
+    it('should return a single boolean var node', () => {
+      const node = Parser.parseProgram('PROGRAM test; VAR a:BOOLEAN; BEGIN END.');
+      const expected = program(
+        'test',
+        block(
+          compoundStatement([noopNode()]),
+          [declaration('a', 'BOOLEAN')]
+        )
+      );
+
+      assert.deepEqual(node, expected);
+    });
+
     it('should return more than one real var node defined on a single line', () => {
       const node = Parser.parseProgram('PROGRAM test; VAR a,b:REAL; BEGIN END.');
       const expected = program('test',

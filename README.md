@@ -15,7 +15,7 @@ procedure_declaration : PROCEDURE ID (LPAREN formal_parameter_declaration (SEMI 
 
 variable_declaration : ID (COMMA ID)* COLON type_spec
 
-type_spec : INTEGER | REAL
+type_spec : INTEGER | REAL | BOOLEAN
 
 compound_statement : BEGIN statement_list END
 
