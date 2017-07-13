@@ -38,7 +38,7 @@ module.exports.binaryOp = function binaryOp(lhs, rhs, opVal) {
   return {
     type: AST.NodeTypes.BINOP,
     op: {
-      type: Lexer.LexemeTokenMap.get(opVal),
+      type: Lexer.LexemeTokenMap.get(opVal.toUpperCase()),
       val: opVal
     },
     left: lhs,
@@ -50,7 +50,7 @@ module.exports.unaryOp = function unaryOp(operand, opVal) {
   return {
     type: AST.NodeTypes.UNARYOP,
     op: {
-      type: Lexer.LexemeTokenMap.get(opVal),
+      type: Lexer.LexemeTokenMap.get(opVal.toUpperCase()),
       val: opVal
     },
     expr: operand
