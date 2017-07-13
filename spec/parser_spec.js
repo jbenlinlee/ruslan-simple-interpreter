@@ -14,6 +14,7 @@ describe('Parser behavior', () => {
   // Copying in the Templates to clean up it-block code for readability
   integerNode = Templates.integerNode;
   realNode = Templates.realNode;
+  booleanNode = Templates.booleanNode;
   binaryOp = Templates.binaryOp;
   unaryOp = Templates.unaryOp;
   assignmentNode = Templates.assignmentNode;
@@ -130,6 +131,105 @@ describe('Parser behavior', () => {
       const expected = binaryOp(integerNode(5), unaryOp(integerNode(3), '-'), '*');
 
       assert.deepEqual(node, expected);
+    });
+  });
+
+  describe('when processing boolean expressions', () => {
+    it('should return a boolean node for constant true', () => {
+      const node = Parser.parseBooleanExpression('TRUE');
+      const expected = booleanNode(true);
+
+      assert.deepEqual(node, expected);
+    });
+
+    it('should return a boolean node for constant false', () => {
+      const node = Parser.parseBooleanExpression('false');
+      const expected = booleanNode(false);
+
+      assert.deepEqual(node, expected);
+    });
+
+    it('should correctly parse unary not', () => {
+      const node = Parser.parseBooleanExpression('NoT true');
+      const expected = unaryOp(booleanNode(true), 'NoT');
+
+      assert.deepEqual(node, expected);
+    });
+
+    it('should correctly parse a boolean term with two constants', () => {
+      const node = Parser.parseBooleanExpression('7 < 6');
+      const expected = binaryOp(
+        integerNode(7),
+        integerNode(6),
+        '<'
+      );
+    });
+
+    it('should correctly parse a boolean term with a constant and an expression', () => {
+      const node = Parser.parseBooleanExpression('1 + 3 < 10');
+      const expected = binaryOp(
+        binaryOp(
+          integerNode(1),
+          integerNode(3),
+          '+'
+        ),
+        integerNode(10),
+        '<'
+      );
+
+      assert.deepEqual(node, expected);
+    });
+
+    it('should correctly parse a boolean term with a constant and a parenthesized expression', () => {
+      const node = Parser.parseBooleanExpression('(1 + 3) < 10');
+      const expected = binaryOp(
+        binaryOp(
+          integerNode(1),
+          integerNode(3),
+          '+'
+        ),
+        integerNode(10),
+        '<'
+      );
+
+      assert.deepEqual(node, expected);
+    });
+
+    it('should correctly parse a boolean expression with two constants', () => {
+      const node = Parser.parseBooleanExpression('true AND FALSE');
+      const expected = binaryOp(
+        booleanNode(true),
+        booleanNode(false),
+        'AND'
+      );
+
+      assert.deepEqual(node, expected);
+    });
+
+    it('should correctly parse a boolean expression with a constant and a relational expression', () => {
+      const node = Parser.parseBooleanExpression('6 < 7 AND true');
+      const expected = binaryOp(
+        binaryOp(
+          integerNode(6),
+          integerNode(7),
+          '<'
+        ),
+        booleanNode(true),
+        'AND'
+      );
+    });
+
+    it('should correctly parse a boolean expression with a constant and a parenthesized relational expression', () => {
+      const node = Parser.parseBooleanExpression('(6 >= 7) AND true');
+      const expected = binaryOp(
+        binaryOp(
+          integerNode(6),
+          integerNode(7),
+          '>='
+        ),
+        booleanNode(true),
+        'AND'
+      );
     });
   });
 
