@@ -8,11 +8,13 @@ describe('Type Analyzer', () => {
   let globalSymbolTable;
   let analyzer;
   let INTEGER_Symbol = new SymbolTable.BuiltinTypeSymbol(AST.NodeTypes.INTEGER);
-  let REAL_Symbol = new SymbolTable.BuiltinTypeSymbol(AST.NodeTypes.REAL)
+  let REAL_Symbol = new SymbolTable.BuiltinTypeSymbol(AST.NodeTypes.REAL);
+  let BOOL_Symbol = new SymbolTable.BuiltinTypeSymbol(AST.NodeTypes.BOOLEAN);
 
   // Copying in the Templates to clean up it-block code for readability
   integerNode = Templates.integerNode;
   realNode = Templates.realNode;
+  booleanNode = Templates.booleanNode;
   binaryOp = Templates.binaryOp;
   varNode = Templates.varNode;
 
@@ -24,8 +26,10 @@ describe('Type Analyzer', () => {
     globalSymbolTable = new SymbolTable.SymbolTable();
     globalSymbolTable.define(INTEGER_Symbol);
     globalSymbolTable.define(REAL_Symbol);
+    globalSymbolTable.define(BOOL_Symbol);
     globalSymbolTable.define(new SymbolTable.VarSymbol('intA', INTEGER_Symbol));
     globalSymbolTable.define(new SymbolTable.VarSymbol('realB', REAL_Symbol));
+    globalSymbolTable.define(new SymbolTable.VarSymbol('boolC', BOOL_Symbol));
 
     analyzer = new TypeAnalyzer(globalSymbolTable);
   });
@@ -37,6 +41,10 @@ describe('Type Analyzer', () => {
 
     it('should return REAL for a real const', () => {
       testType(REAL_Symbol, realNode(3.0));
+    });
+
+    it('should return BOOLEAN for a boolean const', () => {
+      testType(BOOL_Symbol, booleanNode(false));
     });
   });
 
@@ -158,6 +166,94 @@ describe('Type Analyzer', () => {
         integerNode(10),
         realNode(2.0),
         '/'
+      ));
+    });
+  });
+
+  describe('for relational expressions', () => {
+    it('should return BOOLEAN for a "<" relational expression between two integer constants', () => {
+      testType(BOOL_Symbol, binaryOp(
+        integerNode(7),
+        integerNode(0),
+        '<'
+      ));
+    });
+
+    it('should return BOOLEAN for a ">" relational expression between two real constants', () => {
+      testType(BOOL_Symbol, binaryOp(
+        realNode(-4.0),
+        realNode(5.0),
+        '>'
+      ));
+    });
+
+    it('should return BOOLEAN for a "<=" relational expression between an integer and a real costant', () => {
+      testType(BOOL_Symbol, binaryOp(
+        realNode(1.34),
+        integerNode(10),
+        '<='
+      ));
+    });
+
+    it('should return BOOLEAN for a ">=" relational expression between an integer const and a real var', () => {
+      testType(BOOL_Symbol, binaryOp(
+        varNode('realB'),
+        integerNode(1),
+        '>='
+      ));
+    });
+
+    it('should return BOOLEAN for a "=" relational expression between an expression and a constant', () => {
+      testType(BOOL_Symbol, binaryOp(
+        binaryOp(
+          realNode(4.5),
+          integerNode(7),
+          '+'
+        ),
+        realNode(31.4),
+        '='
+      ));
+    });
+
+    it('should return BOOLEAN for a "<>" relational expression between an expression and a var', () => {
+      testType(BOOL_Symbol, binaryOp(
+        varNode('realB'),
+        binaryOp(
+          realNode(100.1),
+          realNode(98.9),
+          '+'
+        ),
+        '<>'
+      ));
+    });
+  });
+
+  describe('for boolean expressions', () => {
+    it('should return BOOLEAN for an "AND" boolean expression between two boolean constants', () => {
+      testType(BOOL_Symbol, binaryOp(
+        booleanNode(true),
+        booleanNode(false),
+        'AND'
+      ));
+    });
+
+    it('should return BOOLEAN for an "OR" boolean expression between a boolean constant and a boolean var', () => {
+      testType(BOOL_Symbol, binaryOp(
+        booleanNode(false),
+        varNode('boolC'),
+        'OR'
+      ));
+    });
+
+    it('should return BOOLEAN for an "XOR" boolean expression between a boolean var and a relational expression', () => {
+      testType(BOOL_Symbol, binaryOp(
+        varNode('boolC'),
+        binaryOp(
+          realNode(3.14),
+          realNode(2.75),
+          '>'
+        ),
+        'XOR'
       ));
     });
   });
