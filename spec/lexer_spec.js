@@ -153,6 +153,21 @@ describe('Lexer', () => {
         tokenTypeCheck('PROCEDURE', Lexer.TokenTypes.PROCEDURE);
         tokenTypeCheck('pRoCeDuRe', Lexer.TokenTypes.PROCEDURE);
       });
+
+      it('should return correct token for reserved word IF in a case insensitive manner', () => {
+        tokenTypeCheck('IF', Lexer.TokenTypes.IF);
+        tokenTypeCheck('iF', Lexer.TokenTypes.IF);
+      });
+
+      it('should return correct token for reserved word THEN in a case insensitive manner', () => {
+        tokenTypeCheck('THEN', Lexer.TokenTypes.THEN);
+        tokenTypeCheck('tHeN', Lexer.TokenTypes.THEN);
+      });
+
+      it('should return correct token for reserved word ELSE in a case insensitive manner', () => {
+        tokenTypeCheck('ELSE', Lexer.TokenTypes.ELSE);
+        tokenTypeCheck('eLsE', Lexer.TokenTypes.ELSE);
+      });
     });
 
     describe('for operators', () => {
