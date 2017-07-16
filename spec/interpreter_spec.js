@@ -156,5 +156,19 @@ describe('Interpreter', () => {
         testProgram('PROGRAM test; VAR var1 : INTEGER; PROCEDURE myproc; VAR var1 : INTEGER; BEGIN var1 := 5 END; BEGIN var1 := 3; myproc; END.', {VAR1: 3});
       });
     });
+
+    describe('that use conditional statements', () => {
+      it('should execute statement if true when test is true', () => {
+        testProgram('PROGRAM test; VAR var1 : INTEGER; BEGIN var1 := 100; IF true THEN var1 := 50 END.', {VAR1: 50});
+      });
+
+      it('should not execute statement if true when test is false', () => {
+        testProgram('PROGRAM test; VAR var1 : INTEGER; BEGIN var1 := 100; IF false THEN var1 := 50 END.', {VAR1: 100});
+      });
+
+      it('should execute else statement when test is false', () => {
+        testProgram('PROGRAM test; VAR var1 : INTEGER; BEGIN var1 := 100; IF false THEN var1 := 50 ELSE var1 := 42 END.', {VAR1 : 42});
+      });
+    });
   });
 });
