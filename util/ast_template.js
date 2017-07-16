@@ -69,6 +69,15 @@ module.exports.assignmentNode = function assignmentNode(lhs, rhs) {
   }
 }
 
+module.exports.conditionalNode = function conditionalNode(test, trueBlock, elseBlock) {
+  return {
+    type: AST.NodeTypes.CONDITIONAL,
+    test: test,
+    trueBlock: trueBlock,
+    elseBlock: elseBlock
+  }
+}
+
 module.exports.procedureCallNode = function procedureCallNode(procName, params) {
   return {
     type: AST.NodeTypes.PROCEDURECALL,

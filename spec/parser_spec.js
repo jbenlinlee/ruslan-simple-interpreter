@@ -19,6 +19,7 @@ describe('Parser behavior', () => {
   unaryOp = Templates.unaryOp;
   assignmentNode = Templates.assignmentNode;
   procedureCallNode = Templates.procedureCallNode;
+  conditionalNode = Templates.conditionalNode;
   varNode = Templates.varNode;
   noopNode = Templates.noopNode;
   compoundStatement = Templates.compoundStatement;
@@ -477,6 +478,75 @@ describe('Parser behavior', () => {
               )
             )
           ]
+        )
+      );
+
+      assert.deepEqual(node, expected);
+    });
+  });
+
+  describe('when processing conditional statements', () => {
+    it('should return conditional nodes with a variable test and no else block', () => {
+      const node = Parser.parseProgram('PROGRAM test; VAR a : BOOLEAN; BEGIN IF a THEN END.');
+      const expected = program(
+        'test',
+        block(
+          compoundStatement([
+            conditionalNode(varNode('a'), noopNode(), undefined)
+          ]),
+          [
+            declaration('a', 'BOOLEAN')
+          ]
+        )
+      );
+
+      assert.deepEqual(node, expected);
+    });
+
+    it('should return conditional nodes with a variable test and an else block', () => {
+      const node = Parser.parseProgram('PROGRAM test; VAR a : BOOLEAN; BEGIN IF a THEN a := false ELSE a := true; END.');
+      const expected = program(
+        'test',
+        block(
+          compoundStatement([
+            conditionalNode(
+              varNode('a'),
+              assignmentNode(
+                varNode('a'),
+                booleanNode(false)
+              ),
+              assignmentNode(
+                varNode('a'),
+                booleanNode(true)
+              )
+            ),
+            noopNode()
+          ]),
+          [
+            declaration('a', 'BOOLEAN')
+          ]
+        )
+      );
+
+      assert.deepEqual(node, expected);
+    });
+
+    it('should match else to the closest if-then', () => {
+      const node = Parser.parseProgram('PROGRAM test; BEGIN IF true THEN If true THEN ELSE END.');
+      const expected = program(
+        'test',
+        block(
+          compoundStatement([
+            conditionalNode(
+              booleanNode(true),
+              conditionalNode(
+                booleanNode(true),
+                noopNode(),
+                noopNode()
+              )
+            )
+          ]),
+          [ ]
         )
       );
 
