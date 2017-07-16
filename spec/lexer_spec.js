@@ -168,6 +168,16 @@ describe('Lexer', () => {
         tokenTypeCheck('ELSE', Lexer.TokenTypes.ELSE);
         tokenTypeCheck('eLsE', Lexer.TokenTypes.ELSE);
       });
+
+      it('should return correct token for reserved word WHILE in a case insensitive manner', () => {
+        tokenTypeCheck('WHILE', Lexer.TokenTypes.WHILE);
+        tokenTypeCheck('WhIlE', Lexer.TokenTypes.WHILE);
+      });
+
+      it('should return correct token for reserved word DO in a case insensitive manner', () => {
+        tokenTypeCheck('DO', Lexer.TokenTypes.DO);
+        tokenTypeCheck('dO', Lexer.TokenTypes.DO);
+      });
     });
 
     describe('for operators', () => {
