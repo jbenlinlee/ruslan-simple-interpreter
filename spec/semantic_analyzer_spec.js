@@ -166,4 +166,31 @@ describe('Semantic Analyzer', () => {
       assert.equal(isValid, false);
     });
   });
+
+  describe('when handling conditional statements', () => {
+    it('should return false for a conditional with a non-boolean test expression', () => {
+      const node = Parser.parseProgram('PROGRAM test; BEGIN IF 10 + 3.4 THEN; END.');
+      const isValid = builder.visit(node);
+      assert.equal(isValid, false);
+    });
+
+    it('should return true for a conditional with a boolean expression that has two consts', () => {
+      const node = Parser.parseProgram('PROGRAM test; BEGIN IF true AND false THEN; END.');
+      const isValid = builder.visit(node);
+
+      assert.equal(isValid, true);
+    });
+
+    it('should return true for a conditional with a boolean expression that has a const and a variable', () => {
+      const node = Parser.parseProgram('PROGRAM test; VAR a : BOOLEAN; BEGIN IF a OR true THEN; END.');
+      const isValid = builder.visit(node);
+      assert.equal(isValid, true);
+    });
+
+    it('should return true for a conditional with a boolean expression that contains a relational expression', () => {
+      const node = Parser.parseProgram('PROGRAM test; BEGIN IF 6 < 7 THEN; END.');
+      const isValid = builder.visit(node);
+      assert.equal(isValid, true);
+    });
+  });
 });
