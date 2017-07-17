@@ -20,6 +20,7 @@ describe('Parser behavior', () => {
   assignmentNode = Templates.assignmentNode;
   procedureCallNode = Templates.procedureCallNode;
   conditionalNode = Templates.conditionalNode;
+  whileDoNode = Templates.whileDoNode;
   varNode = Templates.varNode;
   noopNode = Templates.noopNode;
   compoundStatement = Templates.compoundStatement;
@@ -547,6 +548,88 @@ describe('Parser behavior', () => {
             )
           ]),
           [ ]
+        )
+      );
+
+      assert.deepEqual(node, expected);
+    });
+  });
+
+  describe('when processing while-do statements', () => {
+    it('should return while-do nodes with a constant test', () => {
+      const node = Parser.parseProgram('PROGRAM test; BEGIN WHILE true DO END.');
+      const expected = program(
+        'test',
+        block(
+          compoundStatement([
+            whileDoNode(
+              booleanNode(true),
+              noopNode()
+            )
+          ]),
+          []
+        )
+      );
+
+      assert.deepEqual(node, expected);
+    });
+
+    it('should return while-do nodes with a relational test', () => {
+      const node = Parser.parseProgram('PROGRAM test; BEGIN WHILE 6 < 7 DO END.');
+      const expected = program(
+        'test',
+        block(
+          compoundStatement([
+            whileDoNode(
+              binaryOp(integerNode(6), integerNode(7), '<'),
+              noopNode()
+            )
+          ]),
+          []
+        )
+      );
+
+      assert.deepEqual(node, expected);
+    });
+
+    it('should return while-do nodes with a boolean test using a variable', () => {
+      const node = Parser.parseProgram('PROGRAM test; VAR a : BOOLEAN; BEGIN WHILE a AND (10 <= 100) DO END.');
+      const expected = program(
+        'test',
+        block(
+          compoundStatement([
+            whileDoNode(
+              binaryOp(
+                varNode('a'),
+                binaryOp(integerNode(10), integerNode(100), '<='),
+                'AND'
+              ),
+              noopNode()
+            )
+          ]),
+          [declaration('a', 'BOOLEAN')]
+        )
+      );
+
+      assert.deepEqual(node, expected);
+    });
+
+    it('should return while-do nodes with a relational test and a non-empty block', () => {
+      const node = Parser.parseProgram('PROGRAM test; VAR a : INTEGER; BEGIN a := 0; WHILE a < 10 DO a := a + 2 END.');
+      const expected = program(
+        'test',
+        block(
+          compoundStatement([
+            assignmentNode(varNode('a'), integerNode(0)),
+            whileDoNode(
+              binaryOp(varNode('a'), integerNode(10), '<'),
+              assignmentNode(
+                varNode('a'),
+                binaryOp(varNode('a'), integerNode(2), '+')
+              )
+            )
+          ]),
+          [declaration('a', 'INTEGER')]
         )
       );
 

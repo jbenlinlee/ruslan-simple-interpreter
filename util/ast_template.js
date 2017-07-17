@@ -78,6 +78,14 @@ module.exports.conditionalNode = function conditionalNode(test, trueBlock, elseB
   }
 }
 
+module.exports.whileDoNode = function whileDoNode(test, body) {
+  return {
+    type: AST.NodeTypes.WHILEDO,
+    test: test,
+    body: body
+  }
+}
+
 module.exports.procedureCallNode = function procedureCallNode(procName, params) {
   return {
     type: AST.NodeTypes.PROCEDURECALL,
