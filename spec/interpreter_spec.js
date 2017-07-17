@@ -170,5 +170,15 @@ describe('Interpreter', () => {
         testProgram('PROGRAM test; VAR var1 : INTEGER; BEGIN var1 := 100; IF false THEN var1 := 50 ELSE var1 := 42 END.', {VAR1 : 42});
       });
     });
+
+    describe('that use while-do loops', () => {
+      it('should execute a loop with a relational test condition', () => {
+        testProgram('PROGRAM test; VAR a : REAL; BEGIN a := 0.0; WHILE a < 2.25 DO a := a + 0.5 END.', {A: 2.5});
+      });
+
+      it('should execute a loop with a boolean condition and a compound statement body', () => {
+        testProgram('PROGRAM test; VAR a : REAL; BEGIN a := 0.125; WHILE (a < 3) AND false DO a := a + 0.5 END.', {A: 0.125});
+      });
+    });
   });
 });
