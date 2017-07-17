@@ -193,4 +193,36 @@ describe('Semantic Analyzer', () => {
       assert.equal(isValid, true);
     });
   });
+
+  describe('when handling WHILE-DO statements', () => {
+    it('should return false for a non-boolean test expression', () => {
+      const node = Parser.parseProgram('PROGRAM test; BEGIN WHILE 1 + 3 DO END.');
+      const isValid = builder.visit(node);
+      assert.equal(isValid, false);
+    });
+
+    it('should return false for an invalid loop body', () => {
+      const node = Parser.parseProgram('PROGRAM test; BEGIN WHILE true DO a := 1 END.');
+      const isValid = builder.visit(node);
+      assert.equal(isValid, false);
+    });
+
+    it('should return true for a boolean const test expression', () => {
+      const node = Parser.parseProgram('PROGRAM test; BEGIN WHILE true DO END.');
+      const isValid = builder.visit(node);
+      assert.equal(isValid, true);
+    });
+
+    it('should return true for a valid loop body', () => {
+      const node = Parser.parseProgram('PROGRAM test; VAR a : INTEGER; BEGIN WHILE true DO a := a + 1 END.');
+      const isValid = builder.visit(node);
+      assert.equal(isValid, true);
+    });
+
+    it('should return true for a compound statement loop body', () => {
+      const node = Parser.parseProgram('PROGRAM test; VAR a : INTEGER; BEGIN WHILE true DO BEGIN a := a + 1 END; END.');
+      const isValid = builder.visit(node);
+      assert.equal(isValid, true);
+    });
+  });
 });
