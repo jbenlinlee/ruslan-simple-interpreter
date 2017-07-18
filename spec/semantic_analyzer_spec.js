@@ -225,4 +225,36 @@ describe('Semantic Analyzer', () => {
       assert.equal(isValid, true);
     });
   });
+
+  describe('when handling REPEAT-UNTIL statements', () => {
+    it('should return false for a non-boolean test expression', () => {
+      const node = Parser.parseProgram('PROGRAM test; BEGIN REPEAT UNTIL 1 + 3 END.');
+      const isValid = builder.visit(node);
+      assert.equal(isValid, false);
+    });
+
+    it('should return false for an invalid loop body', () => {
+      const node = Parser.parseProgram('PROGRAM test; BEGIN REPEAT a := 1 UNTIL true END.');
+      const isValid = builder.visit(node);
+      assert.equal(isValid, false);
+    });
+
+    it('should return true for a boolean const test expression', () => {
+      const node = Parser.parseProgram('PROGRAM test; BEGIN REPEAT UNTIL false END.');
+      const isValid = builder.visit(node);
+      assert.equal(isValid, true);
+    });
+
+    it('should return true for a valid loop body', () => {
+      const node = Parser.parseProgram('PROGRAM test; VAR a : INTEGER; BEGIN REPEAT a := a + 1 UNTIL false END.');
+      const isValid = builder.visit(node);
+      assert.equal(isValid, true);
+    });
+
+    it('should return true for a compound statement loop body', () => {
+      const node = Parser.parseProgram('PROGRAM test; VAR a : INTEGER; BEGIN REPEAT BEGIN a := a + 1 END UNTIL false END.');
+      const isValid = builder.visit(node);
+      assert.equal(isValid, true);
+    });
+  });
 });
