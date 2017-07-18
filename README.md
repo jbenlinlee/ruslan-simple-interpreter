@@ -27,6 +27,7 @@ statement : compound_statement
           | procedure_call
           | conditional_statement
           | while_statement
+          | repeat_statement
           | empty
 
 assignment_statement : variable ASSIGN expr
@@ -36,6 +37,8 @@ procedure_call : procedure (LPAREN expr (COMMA expr)* RPAREN)?
 conditional_statement : IF boolean_expr THEN statement (ELSE statement)?
 
 while_statement : WHILE boolean_expr DO statement
+
+repeat_statement : REPEAT statement UNTIL boolean_expr
 
 variable : ID
 
