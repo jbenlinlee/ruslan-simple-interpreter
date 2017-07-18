@@ -86,6 +86,14 @@ module.exports.whileDoNode = function whileDoNode(test, body) {
   }
 }
 
+module.exports.repeatUntilNode = function repeatUntilNode(test, body) {
+  return {
+    type: AST.NodeTypes.REPEATUNTIL,
+    test: test,
+    body: body
+  }
+}
+
 module.exports.procedureCallNode = function procedureCallNode(procName, params) {
   return {
     type: AST.NodeTypes.PROCEDURECALL,

@@ -21,6 +21,7 @@ describe('Parser behavior', () => {
   procedureCallNode = Templates.procedureCallNode;
   conditionalNode = Templates.conditionalNode;
   whileDoNode = Templates.whileDoNode;
+  repeatUntilNode = Templates.repeatUntilNode;
   varNode = Templates.varNode;
   noopNode = Templates.noopNode;
   compoundStatement = Templates.compoundStatement;
@@ -622,6 +623,88 @@ describe('Parser behavior', () => {
           compoundStatement([
             assignmentNode(varNode('a'), integerNode(0)),
             whileDoNode(
+              binaryOp(varNode('a'), integerNode(10), '<'),
+              assignmentNode(
+                varNode('a'),
+                binaryOp(varNode('a'), integerNode(2), '+')
+              )
+            )
+          ]),
+          [declaration('a', 'INTEGER')]
+        )
+      );
+
+      assert.deepEqual(node, expected);
+    });
+  });
+
+  describe('when processing repeat-until statements', () => {
+    it('should return repeat-until nodes with a constant test', () => {
+      const node = Parser.parseProgram('PROGRAM test; BEGIN REPEAT UNTIL true END.');
+      const expected = program(
+        'test',
+        block(
+          compoundStatement([
+            repeatUntilNode(
+              booleanNode(true),
+              noopNode()
+            )
+          ]),
+          []
+        )
+      );
+
+      assert.deepEqual(node, expected);
+    });
+
+    it('should return repeat-until nodes with a relational test', () => {
+      const node = Parser.parseProgram('PROGRAM test; BEGIN REPEAT UNTIL 6 > 7 END.');
+      const expected = program(
+        'test',
+        block(
+          compoundStatement([
+            repeatUntilNode(
+              binaryOp(integerNode(6), integerNode(7), '>'),
+              noopNode()
+            )
+          ]),
+          []
+        )
+      );
+
+      assert.deepEqual(node, expected);
+    });
+
+    it('should return repeat-until nodes with a boolean test using a variable', () => {
+      const node = Parser.parseProgram('PROGRAM test; VAR a : BOOLEAN; BEGIN REPEAT UNTIL a AND (10 <= 100) END.');
+      const expected = program(
+        'test',
+        block(
+          compoundStatement([
+            repeatUntilNode(
+              binaryOp(
+                varNode('a'),
+                binaryOp(integerNode(10), integerNode(100), '<='),
+                'AND'
+              ),
+              noopNode()
+            )
+          ]),
+          [declaration('a', 'BOOLEAN')]
+        )
+      );
+
+      assert.deepEqual(node, expected);
+    });
+
+    it('should return repeat-until nodes with a relational test and a non-empty block', () => {
+      const node = Parser.parseProgram('PROGRAM test; VAR a : INTEGER; BEGIN a := 0; REPEAT a := a + 2 UNTIL a < 10 END.');
+      const expected = program(
+        'test',
+        block(
+          compoundStatement([
+            assignmentNode(varNode('a'), integerNode(0)),
+            repeatUntilNode(
               binaryOp(varNode('a'), integerNode(10), '<'),
               assignmentNode(
                 varNode('a'),
