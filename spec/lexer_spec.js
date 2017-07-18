@@ -178,6 +178,16 @@ describe('Lexer', () => {
         tokenTypeCheck('DO', Lexer.TokenTypes.DO);
         tokenTypeCheck('dO', Lexer.TokenTypes.DO);
       });
+
+      it('should return correct token for reserved word REPEAT in a case insensitive manner', () => {
+        tokenTypeCheck('REPEAT', Lexer.TokenTypes.REPEAT);
+        tokenTypeCheck('RePeAt', Lexer.TokenTypes.REPEAT);
+      });
+
+      it('should return correct token for reserved word UNTIL in a case insensitive manner', () => {
+        tokenTypeCheck('UNTIL', Lexer.TokenTypes.UNTIL);
+        tokenTypeCheck('uNtIl', Lexer.TokenTypes.UNTIL);
+      });
     });
 
     describe('for operators', () => {
