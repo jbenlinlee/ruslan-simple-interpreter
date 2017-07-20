@@ -7,7 +7,7 @@ program : variable SEMI block DOT
 
 block : declarations compound_statement
 
-declarations : (VAR (variable_declaration SEMI)+)* (procedure_declaration)* (function_declaration)*
+declarations : (VAR (variable_declaration SEMI)+)* (procedure_declaration | function_declaration)*
              | empty
 
 procedure_declaration : PROCEDURE ID (LPAREN formal_parameter_declaration (SEMI formal_parameter_declaration)* RPAREN)? SEMI block SEMI
