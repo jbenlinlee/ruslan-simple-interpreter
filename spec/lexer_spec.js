@@ -188,6 +188,11 @@ describe('Lexer', () => {
         tokenTypeCheck('UNTIL', Lexer.TokenTypes.UNTIL);
         tokenTypeCheck('uNtIl', Lexer.TokenTypes.UNTIL);
       });
+
+      it('should return correct token for reserved word FUNCTION in a case insensitive manner', () => {
+        tokenTypeCheck('FUNCTION', Lexer.TokenTypes.FUNCTION);
+        tokenTypeCheck('fUnCtIoN', Lexer.TokenTypes.FUNCTION);
+      });
     });
 
     describe('for operators', () => {
