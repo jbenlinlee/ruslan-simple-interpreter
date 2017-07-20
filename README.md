@@ -7,11 +7,12 @@ program : variable SEMI block DOT
 
 block : declarations compound_statement
 
-declarations : VAR (variable_declaration SEMI)+ (procedure_declaration)*
-             | (procedure_declaration)*
+declarations : (VAR (variable_declaration SEMI)+)* (procedure_declaration)* (function_declaration)*
              | empty
 
 procedure_declaration : PROCEDURE ID (LPAREN formal_parameter_declaration (SEMI formal_parameter_declaration)* RPAREN)? SEMI block SEMI
+
+function_declaration : FUNCTION ID (LPAREN formal_parameter_declaration (SEMI formal_parameter_declaration)* RPAREN)? COLON type_spec SEMI block SEMI
 
 variable_declaration : ID (COMMA ID)* COLON type_spec
 
@@ -34,6 +35,8 @@ assignment_statement : variable ASSIGN expr
 
 procedure_call : procedure (LPAREN expr (COMMA expr)* RPAREN)?
 
+function_call : function LPAREN (expr (COMMA expr)*)? RPAREN
+
 conditional_statement : IF boolean_expr THEN statement (ELSE statement)?
 
 while_statement : WHILE boolean_expr DO statement
@@ -43,6 +46,8 @@ repeat_statement : REPEAT statement UNTIL boolean_expr
 variable : ID
 
 procedure : ID
+
+function : ID
 
 boolean_expr : expr ((LT | GT | LEQ | GEQ | EQ | NEQ) expr)?
 
@@ -57,5 +62,6 @@ factor : PLUS factor
        | REAL_CONST
        | BOOLEAN_CONST
        | LPAREN boolean_expr RPAREN
+       | function_call
        | variable
 ```
