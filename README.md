@@ -35,7 +35,7 @@ assignment_statement : variable ASSIGN expr
 
 procedure_call : procedure (LPAREN expr (COMMA expr)* RPAREN)?
 
-function_call : function LPAREN (expr (COMMA expr)*)? RPAREN
+function_call : function LPAREN ((expr (COMMA expr)*)? | empty) RPAREN
 
 conditional_statement : IF boolean_expr THEN statement (ELSE statement)?
 
