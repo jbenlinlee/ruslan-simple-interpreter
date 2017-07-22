@@ -19,6 +19,7 @@ describe('Parser behavior', () => {
   unaryOp = Templates.unaryOp;
   assignmentNode = Templates.assignmentNode;
   procedureCallNode = Templates.procedureCallNode;
+  functionCallNode = Templates.functionCallNode;
   conditionalNode = Templates.conditionalNode;
   whileDoNode = Templates.whileDoNode;
   repeatUntilNode = Templates.repeatUntilNode;
@@ -122,6 +123,49 @@ describe('Parser behavior', () => {
       assert.deepEqual(node, expected);
     });
 
+    it('should return a function call for a function call', () => {
+      const node = Parser.parseExpression('func1()');
+      const expected = functionCallNode('func1',[]);
+
+      assert.deepEqual(node, expected);
+    });
+
+    it('should return a function call with a variable and an expression argument', () => {
+      const node = Parser.parseExpression('func1(4 - 2 * 5, myvar)');
+      const expected = functionCallNode(
+        'func1',
+        [
+          binaryOp(
+            integerNode(4),
+            binaryOp(
+              integerNode(2),
+              integerNode(5),
+              '*'
+            ),
+            '-'
+          ),
+          varNode('myvar')
+        ]
+      );
+
+      assert.deepEqual(node, expected);
+    });
+
+    it('should return an expression tree with a function call as a value', () => {
+      const node = Parser.parseExpression('4 - 2 * func1()');
+      const expected = binaryOp(
+        integerNode(4),
+        binaryOp(
+          integerNode(2),
+          functionCallNode('func1', []),
+          '*'
+        ),
+        '-'
+      );
+
+      assert.deepEqual(node, expected);
+    });
+
     // unary operation
     it('should be able to return a tree of unary operation nodes', () => {
       const node = Parser.parseExpression('---5');
@@ -178,6 +222,21 @@ describe('Parser behavior', () => {
           '+'
         ),
         integerNode(10),
+        '<'
+      );
+
+      assert.deepEqual(node, expected);
+    });
+
+    it('should correctly parse a boolean term with a function call as an operand', () => {
+      const node = Parser.parseBooleanExpression('func() < (6 + 3)');
+      const expected = binaryOp(
+        functionCallNode('func', []),
+        binaryOp(
+          integerNode(6),
+          integerNode(3),
+          '+'
+        ),
         '<'
       );
 

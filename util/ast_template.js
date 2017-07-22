@@ -102,6 +102,14 @@ module.exports.procedureCallNode = function procedureCallNode(procName, params) 
   }
 }
 
+module.exports.functionCallNode = function functionCallNode(funcName, params) {
+  return {
+    type: AST.NodeTypes.FUNCTIONCALL,
+    name: funcName,
+    params: params
+  }
+}
+
 module.exports.varNode = function varNode(varName) {
   return {
     type: AST.NodeTypes.VAR,
