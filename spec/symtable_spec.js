@@ -19,4 +19,13 @@ describe('Symbol Table', () => {
     const retrievedSymbol = tbl.lookup(symbol_name);
     assert.equal(retrievedSymbol, newSymbol);
   });
+
+  it('should throw an exception when a symbol is declared twice', () => {
+    assert.throws(() => {
+      const symbol_name = 'someSymbol';
+      const newSymbol = new Symtable.Symbol(symbol_name);
+      tbl.define(newSymbol);
+      tbl.define(newSymbol);
+    });
+  });
 });
