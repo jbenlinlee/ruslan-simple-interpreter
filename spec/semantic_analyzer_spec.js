@@ -68,28 +68,64 @@ describe('Semantic Analyzer', () => {
   });
 
   describe('when handling declarations', () => {
-    it('should return true for a program with a procedure declaration', () => {
-      const node = Parser.parseProgram('PROGRAM test; PROCEDURE myproc; BEGIN END; BEGIN END.');
-      const isValid = builder.visit(node);
-      assert.equal(isValid, true);
+    describe('of variables', () => {
+      it('should return false for a program with a var defined twice', () => {
+        const node = Parser.parseProgram('PROGRAM test; VAR x : INTEGER; x : REAL; BEGIN END.');
+        const isValid = builder.visit(node);
+        assert.equal(isValid, false);
+      });
     });
 
-    it('should return false for a program with a var defined twice', () => {
-      const node = Parser.parseProgram('PROGRAM test; VAR x : INTEGER; x : REAL; BEGIN END.');
-      const isValid = builder.visit(node);
-      assert.equal(isValid, false);
+    describe('of procedures', () => {
+      it('should return true for a program with a procedure declaration', () => {
+        const node = Parser.parseProgram('PROGRAM test; PROCEDURE myproc; BEGIN END; BEGIN END.');
+        const isValid = builder.visit(node);
+        assert.equal(isValid, true);
+      });
+
+      it('should return true for a program with a procedure that uses a local scoped var', () => {
+        const node = Parser.parseProgram('PROGRAM test; PROCEDURE myproc; VAR x : INTEGER; BEGIN x := 5; END; BEGIN END.');
+        const isValid = builder.visit(node);
+        assert.equal(isValid, true);
+      });
+
+      it('should return true for a program with a procedure that uses a procedure param', () => {
+        const node = Parser.parseProgram('PROGRAM test; PROCEDURE myproc(a : INTEGER); VAR x : INTEGER; BEGIN x := a; END; BEGIN END.');
+        const isValid = builder.visit(node);
+        assert.equal(isValid, true);
+      });
     });
 
-    it('should return true for a program with a procedure that uses a local scoped var', () => {
-      const node = Parser.parseProgram('PROGRAM test; PROCEDURE myproc; VAR x : INTEGER; BEGIN x := 5; END; BEGIN END.');
-      const isValid = builder.visit(node);
-      assert.equal(isValid, true);
-    });
+    describe('of functions', () => {
+      it('should return true for a program with a function declaration', () => {
+        const node = Parser.parseProgram('PROGRAM test; FUNCTION myfunc : INTEGER; BEGIN END; BEGIN END.');
+        const isValid = builder.visit(node);
+        assert.equal(isValid, true);
+      });
 
-    it('should return true for a program with a procedure that uses a procedure param', () => {
-      const node = Parser.parseProgram('PROGRAM test; PROCEDURE myproc(a : INTEGER); VAR x : INTEGER; BEGIN x := a; END; BEGIN END.');
-      const isValid = builder.visit(node);
-      assert.equal(isValid, true);
+      it('should return true for a program with a function declaration that includes a parameter', () => {
+        const node = Parser.parseProgram('PROGRAM test; FUNCTION myfunc(a : INTEGER) : BOOLEAN; BEGIN END; BEGIN END.');
+        const isValid = builder.visit(node);
+        assert.equal(isValid, true);
+      });
+
+      it('should return false for a program with a function declared twice', () => {
+        const node = Parser.parseProgram('PROGRAM test; FUNCTION myfunc : INTEGER; BEGIN END; FUNCTION myfunc : BOOLEAN; BEGIN END; BEGIN END.');
+        const isValid = builder.visit(node);
+        assert.equal(isValid, false);
+      });
+
+      it('should return true for a program with a function that assigns a return value of the correct type', () => {
+        const node = Parser.parseProgram('PROGRAM test; FUNCTION myfunc : REAL; BEGIN myfunc := 4.5 * 2 END; BEGIN END.');
+        const isValid = builder.visit(node);
+        assert.equal(isValid, true);
+      });
+
+      it('should return false for a program with a function that assigns a return value of the wrong type', () => {
+        const node = Parser.parseProgram('PROGRAM test; FUNCTION myfunc : INTEGER; BEGIN myfunc := true END; BEGIN END.');
+        const isValid = builder.visit(node);
+        assert.equal(isValid, false);
+      });
     });
   });
 
