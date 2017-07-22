@@ -29,6 +29,7 @@ describe('Parser behavior', () => {
   declaration = Templates.declaration;
   block = Templates.block;
   procedure = Templates.procedure;
+  functionNode = Templates.functionNode;
   parameter = Templates.parameter;
   program = Templates.program;
 
@@ -296,9 +297,6 @@ describe('Parser behavior', () => {
       assert.deepEqual(node, expected);
     });
 
-  });
-
-  describe('when processing declarations', () => {
     it('should return an assignment node for := with a variable RHS', () => {
       const node = Parser.parseProgram('PROGRAM test; BEGIN a := 100; myvar := a; END.');
       const expected = program('test', block(compoundStatement([
@@ -309,127 +307,271 @@ describe('Parser behavior', () => {
 
       assert.deepEqual(node, expected);
     });
+  });
 
-    it('should return a single integer var node', () => {
-      const node = Parser.parseProgram('PROGRAM test; VAR a:INTEGER; BEGIN END.');
-      const expected = program('test',
-        block(compoundStatement([noopNode()]),
-          [declaration('a', 'INTEGER')]));
+  describe('when processing declarations', () => {
+    describe('of variables', () => {
+      it('should return a single integer var node', () => {
+        const node = Parser.parseProgram('PROGRAM test; VAR a:INTEGER; BEGIN END.');
+        const expected = program('test',
+          block(compoundStatement([noopNode()]),
+            [declaration('a', 'INTEGER')]));
 
-      assert.deepEqual(node, expected);
+        assert.deepEqual(node, expected);
+      });
+
+      it('should return a single boolean var node', () => {
+        const node = Parser.parseProgram('PROGRAM test; VAR a:BOOLEAN; BEGIN END.');
+        const expected = program(
+          'test',
+          block(
+            compoundStatement([noopNode()]),
+            [declaration('a', 'BOOLEAN')]
+          )
+        );
+
+        assert.deepEqual(node, expected);
+      });
+
+      it('should return more than one real var node defined on a single line', () => {
+        const node = Parser.parseProgram('PROGRAM test; VAR a,b:REAL; BEGIN END.');
+        const expected = program('test',
+          block(compoundStatement([noopNode()]),
+            [declaration('a', 'REAL'), declaration('b', 'REAL')]));
+
+        assert.deepEqual(node, expected);
+      });
+
+      it('should return var nodes defined on separate lines', () => {
+        const node = Parser.parseProgram('PROGRAM test; VAR a:INTEGER; b:REAL; BEGIN END.');
+        const expected = program('test',
+          block(compoundStatement([noopNode()]),
+            [declaration('a', 'INTEGER'), declaration('b', 'REAL')]));
+
+        assert.deepEqual(node, expected);
+      });
     });
 
-    it('should return a single boolean var node', () => {
-      const node = Parser.parseProgram('PROGRAM test; VAR a:BOOLEAN; BEGIN END.');
-      const expected = program(
-        'test',
-        block(
-          compoundStatement([noopNode()]),
-          [declaration('a', 'BOOLEAN')]
-        )
-      );
-
-      assert.deepEqual(node, expected);
-    });
-
-    it('should return more than one real var node defined on a single line', () => {
-      const node = Parser.parseProgram('PROGRAM test; VAR a,b:REAL; BEGIN END.');
-      const expected = program('test',
-        block(compoundStatement([noopNode()]),
-          [declaration('a', 'REAL'), declaration('b', 'REAL')]));
-
-      assert.deepEqual(node, expected);
-    });
-
-    it('should return var nodes defined on separate lines', () => {
-      const node = Parser.parseProgram('PROGRAM test; VAR a:INTEGER; b:REAL; BEGIN END.');
-      const expected = program('test',
-        block(compoundStatement([noopNode()]),
-          [declaration('a', 'INTEGER'), declaration('b', 'REAL')]));
-
-      assert.deepEqual(node, expected);
-    });
-
-    it('should return procedure nodes with no var nodes', () => {
-      const node = Parser.parseProgram('PROGRAM test; PROCEDURE proc1; BEGIN END; BEGIN END.');
-      const expected = program('test',
-        block(compoundStatement([noopNode()]),
-          [procedure('proc1',
-            [],
-            block(compoundStatement([noopNode()])))]
-        ));
-
-      assert.deepEqual(node, expected);
-    });
-
-    it('should return procedure nodes with an assignment alongside var nodes', () => {
-      const node = Parser.parseProgram('PROGRAM test; VAR a : INTEGER; PROCEDURE proc1; BEGIN a := 5 END; BEGIN END.');
-      const expected = program(
-        'test',
-        block(
-          compoundStatement([noopNode()]),
-          [
-            declaration('a', 'INTEGER'),
-            procedure(
-              'proc1',
+    describe('of procedures', () => {
+      it('should return procedure nodes with no var nodes', () => {
+        const node = Parser.parseProgram('PROGRAM test; PROCEDURE proc1; BEGIN END; BEGIN END.');
+        const expected = program('test',
+          block(compoundStatement([noopNode()]),
+            [procedure('proc1',
               [],
-              block(
-                compoundStatement([
-                  assignmentNode(varNode('a'), integerNode(5))
-                ])
-              )
-          )]
-        )
-      );
+              block(compoundStatement([noopNode()])))]
+          ));
 
-      assert.deepEqual(node, expected);
+        assert.deepEqual(node, expected);
+      });
+
+      it('should return procedure nodes alongside function nodes', () => {
+        const node = Parser.parseProgram('PROGRAM test; FUNCTION func1 : INTEGER; BEGIN END; PROCEDURE proc1; BEGIN END; BEGIN END.');
+        const expected = program(
+          'test',
+          block(
+            compoundStatement([noopNode()]),
+            [
+              functionNode(
+                'func1',
+                [],
+                varType('INTEGER'),
+                block(compoundStatement([noopNode()]))
+              ),
+              procedure(
+                'proc1',
+                [],
+                block(compoundStatement([noopNode()]))
+              )
+            ]
+          )
+        );
+
+        assert.deepEqual(node, expected);
+      });
+
+      it('should return procedure nodes with an assignment alongside var nodes', () => {
+        const node = Parser.parseProgram('PROGRAM test; VAR a : INTEGER; PROCEDURE proc1; BEGIN a := 5 END; BEGIN END.');
+        const expected = program(
+          'test',
+          block(
+            compoundStatement([noopNode()]),
+            [
+              declaration('a', 'INTEGER'),
+              procedure(
+                'proc1',
+                [],
+                block(
+                  compoundStatement([
+                    assignmentNode(varNode('a'), integerNode(5))
+                  ])
+                )
+            )]
+          )
+        );
+
+        assert.deepEqual(node, expected);
+      });
+
+      it('should return procedure nodes with one formal parameter specified', () => {
+        const node = Parser.parseProgram('PROGRAM test; PROCEDURE proc1(a:INTEGER); BEGIN END; BEGIN END.');
+        const expected = program(
+          'test',
+          block(
+            compoundStatement([noopNode()]),
+            [
+              procedure(
+                'proc1',
+                [
+                  parameter(varNode('a'), varType('INTEGER'))
+                ],
+                block(
+                  compoundStatement([noopNode()])
+                )
+              )
+            ]
+          )
+        );
+
+        assert.deepEqual(node, expected);
+      });
+
+      it('should return procedure nodes with more than one formal parameter specified', () => {
+        const node = Parser.parseProgram('PROGRAM test; PROCEDURE proc1(a:INTEGER; b:REAL); BEGIN END; BEGIN END.');
+        const expected = program(
+          'test',
+          block(
+            compoundStatement([noopNode()]),
+            [
+              procedure(
+                'proc1',
+                [
+                  parameter(varNode('a'), varType('INTEGER')),
+                  parameter(varNode('b'), varType('REAL'))
+                ],
+                block(
+                  compoundStatement([noopNode()])
+                )
+              )
+            ]
+          )
+        );
+
+        assert.deepEqual(node, expected);
+      });
     });
 
-    it('should return procedure nodes with one formal parameter specified', () => {
-      const node = Parser.parseProgram('PROGRAM test; PROCEDURE proc1(a:INTEGER); BEGIN END; BEGIN END.');
-      const expected = program(
-        'test',
-        block(
-          compoundStatement([noopNode()]),
-          [
-            procedure(
-              'proc1',
-              [
-                parameter(varNode('a'), varType('INTEGER'))
-              ],
-              block(
-                compoundStatement([noopNode()])
+    describe('of functions', () => {
+      it('should return function nodes with no var nodes', () => {
+        const node = Parser.parseProgram('PROGRAM test; FUNCTION func1 : INTEGER; BEGIN END; BEGIN END.');
+        const expected = program('test',
+          block(compoundStatement([noopNode()]),
+            [functionNode('func1',
+              [],
+              varType('INTEGER'),
+              block(compoundStatement([noopNode()])))]
+          ));
+
+        assert.deepEqual(node, expected);
+      });
+
+      it('should return function nodes with an assignment alongside var nodes', () => {
+        const node = Parser.parseProgram('PROGRAM test; VAR a : INTEGER; FUNCTION func1 : INTEGER; BEGIN a := 5 END; BEGIN END.');
+        const expected = program(
+          'test',
+          block(
+            compoundStatement([noopNode()]),
+            [
+              declaration('a', 'INTEGER'),
+              functionNode(
+                'func1',
+                [],
+                varType('INTEGER'),
+                block(
+                  compoundStatement([
+                    assignmentNode(varNode('a'), integerNode(5))
+                  ])
+                )
+            )]
+          )
+        );
+
+        assert.deepEqual(node, expected);
+      });
+
+      it('should return function nodes alongside procedure nodes', () => {
+        const node = Parser.parseProgram('PROGRAM test; PROCEDURE proc1; BEGIN END; FUNCTION func1 : INTEGER; BEGIN END; BEGIN END.');
+        const expected = program(
+          'test',
+          block(
+            compoundStatement([noopNode()]),
+            [
+              procedure(
+                'proc1',
+                [],
+                block(compoundStatement([noopNode()]))
+              ),
+              functionNode(
+                'func1',
+                [],
+                varType('INTEGER'),
+                block(compoundStatement([noopNode()]))
               )
-            )
-          ]
-        )
-      );
+            ]
+          )
+        );
 
-      assert.deepEqual(node, expected);
-    });
+        assert.deepEqual(node, expected);
+      });
 
-    it('should return procedure nodes with more than one formal parameter specified', () => {
-      const node = Parser.parseProgram('PROGRAM test; PROCEDURE proc1(a:INTEGER; b:REAL); BEGIN END; BEGIN END.');
-      const expected = program(
-        'test',
-        block(
-          compoundStatement([noopNode()]),
-          [
-            procedure(
-              'proc1',
-              [
-                parameter(varNode('a'), varType('INTEGER')),
-                parameter(varNode('b'), varType('REAL'))
-              ],
-              block(
-                compoundStatement([noopNode()])
+      it('should return function nodes with one formal parameter specified', () => {
+        const node = Parser.parseProgram('PROGRAM test; FUNCTION func1(a:INTEGER) : REAL; BEGIN END; BEGIN END.');
+        const expected = program(
+          'test',
+          block(
+            compoundStatement([noopNode()]),
+            [
+              functionNode(
+                'func1',
+                [
+                  parameter(varNode('a'), varType('INTEGER'))
+                ],
+                varType('REAL'),
+                block(
+                  compoundStatement([noopNode()])
+                )
               )
-            )
-          ]
-        )
-      );
+            ]
+          )
+        );
 
-      assert.deepEqual(node, expected);
+        assert.deepEqual(node, expected);
+      });
+
+      it('should return function nodes with more than one formal parameter specified', () => {
+        const node = Parser.parseProgram('PROGRAM test; FUNCTION func1(a:INTEGER; b:REAL) : BOOLEAN; BEGIN END; BEGIN END.');
+        const expected = program(
+          'test',
+          block(
+            compoundStatement([noopNode()]),
+            [
+              functionNode(
+                'func1',
+                [
+                  parameter(varNode('a'), varType('INTEGER')),
+                  parameter(varNode('b'), varType('REAL'))
+                ],
+                varType('BOOLEAN'),
+                block(
+                  compoundStatement([noopNode()])
+                )
+              )
+            ]
+          )
+        );
+
+        assert.deepEqual(node, expected);
+      });
     });
   });
 

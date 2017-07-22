@@ -162,6 +162,16 @@ module.exports.procedure = function procedure(name, params, block) {
   }
 }
 
+module.exports.functionNode = function functionNode(name, params, type, block) {
+  return {
+    type: AST.NodeTypes.FUNCTION,
+    name: name,
+    params: params,
+    returnType: type,
+    block: block
+  }
+}
+
 module.exports.parameter = function parameter(varNode, typeNode) {
   return {
     type: AST.NodeTypes.PARAMETER,
