@@ -14,6 +14,8 @@ procedure_declaration : PROCEDURE ID (LPAREN formal_parameter_declaration (SEMI 
 
 function_declaration : FUNCTION ID (LPAREN formal_parameter_declaration (SEMI formal_parameter_declaration)* RPAREN)? COLON type_spec SEMI block SEMI
 
+formal_parameter_declaration : variable_declaration
+
 variable_declaration : ID (COMMA ID)* COLON type_spec
 
 type_spec : INTEGER | REAL | BOOLEAN
